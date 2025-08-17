@@ -23,6 +23,8 @@ from screens.menu import MenuScreen
 from screens.settings import SettingsScreen
 from screens.rolls import RollsScreen
 from screens.characteristics import CharacteristicsScreen
+from screens.ability_checks import AbilityChecksScreen
+from screens.combat import CombatScreen
 
 # Set responsive window size
 Window.size = (1024, 768)
@@ -42,6 +44,7 @@ class MainApp(App):
             'hp_max': 30,
             'hp_current': 30,
             'armor': 2,
+            'hope': 0,
             'abilities': {
                 'Fuerza': 2,
                 'Destreza': 1,
@@ -65,6 +68,8 @@ class MainApp(App):
         self.sm.add_widget(SettingsScreen(name='settings', app=self))
         self.sm.add_widget(RollsScreen(name='rolls', app=self))
         self.sm.add_widget(CharacteristicsScreen(name='characteristics', app=self))
+        self.sm.add_widget(AbilityChecksScreen(name='ability_checks', app=self))
+        self.sm.add_widget(CombatScreen(name='combat', app=self))
         
         return self.sm
 

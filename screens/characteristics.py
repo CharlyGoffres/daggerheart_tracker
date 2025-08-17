@@ -14,6 +14,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.graphics import Color, RoundedRectangle, Line
+from components.bottom_menu import BottomMenu
 
 class CharacteristicsScreen(Screen):
     def __init__(self, app, **kwargs):
@@ -27,23 +28,16 @@ class CharacteristicsScreen(Screen):
         
         self.bind(pos=self.update_bg, size=self.update_bg)
         
+        # Main container with bottom menu
+        main_container = BoxLayout(orientation='vertical')
+        
         # Main scrollable container
         scroll = ScrollView()
-        main_layout = BoxLayout(orientation='vertical', padding=[30, 40, 30, 40], spacing=25, size_hint_y=None)
+        main_layout = BoxLayout(orientation='vertical', padding=[30, 40, 30, 20], spacing=25, size_hint_y=None)
         main_layout.bind(minimum_height=main_layout.setter('height'))
         
-        # Header with title and back button
+        # Header with title
         header = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=20)
-        
-        back_btn = Button(
-            text='← Volver',
-            font_size=20,
-            size_hint=(None, None),
-            size=(120, 50),
-            background_color=self.rgba('#34495e'),
-            color=self.rgba('#ecf0f1'),
-            on_release=lambda x: self.app.switch_screen('menu', 'right')
-        )
         
         title = Label(
             text='[b]⚔️ FICHA DE PERSONAJE[/b]',
@@ -53,10 +47,7 @@ class CharacteristicsScreen(Screen):
             halign='center'
         )
         
-        header.add_widget(back_btn)
         header.add_widget(title)
-        header.add_widget(BoxLayout(size_hint_x=None, width=120))  # Spacer
-        
         main_layout.add_widget(header)
         
         # Character identity card
@@ -293,7 +284,18 @@ class CharacteristicsScreen(Screen):
         main_layout.add_widget(save_container)
         
         scroll.add_widget(main_layout)
-        self.add_widget(scroll)
+        main_container.add_widget(scroll)
+        
+        # Add bottom menu
+        self.bottom_menu = BottomMenu(self.app)
+        main_container.add_widget(self.bottom_menu)
+        
+        self.add_widget(main_container)
+    
+    def on_enter(self):
+        """Called when entering the screen"""
+        super().on_enter()
+        self.bottom_menu.set_active_button('characteristics')
     
     def create_card(self, bg_color, alpha=0.9):
         """Create a modern card container"""

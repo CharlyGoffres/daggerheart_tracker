@@ -12,10 +12,12 @@ from kivy.uix.slider import Slider
 from kivy.uix.widget import Widget
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.graphics import Color, RoundedRectangle
 from kivy.clock import Clock
+from components.bottom_menu import BottomMenu
 
 class SettingsScreen(Screen):
 
@@ -30,21 +32,16 @@ class SettingsScreen(Screen):
         
         self.bind(pos=self.update_bg, size=self.update_bg)
         
-        # Main container
-        main_layout = BoxLayout(orientation='vertical', padding=[30, 40, 30, 40], spacing=25)
+        # Main container with bottom menu
+        main_container = BoxLayout(orientation='vertical')
         
-        # Header with title and back button
+        # Content area with scroll
+        scroll = ScrollView()
+        main_layout = BoxLayout(orientation='vertical', padding=[30, 40, 30, 20], spacing=25, size_hint_y=None)
+        main_layout.bind(minimum_height=main_layout.setter('height'))
+        
+        # Header with title
         header = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=20)
-        
-        back_btn = Button(
-            text='← Volver',
-            font_size=20,
-            size_hint=(None, None),
-            size=(120, 50),
-            background_color=self.rgba('#9b59b6'),
-            color=self.rgba('#ecf0f1'),
-            on_release=lambda x: self.app.switch_screen('menu', 'right')
-        )
         
         title = Label(
             text='[b]⚙️ CONFIGURACIÓN[/b]',
@@ -54,10 +51,7 @@ class SettingsScreen(Screen):
             halign='center'
         )
         
-        header.add_widget(back_btn)
         header.add_widget(title)
-        header.add_widget(Widget(size_hint_x=None, width=120))  # Spacer
-        
         main_layout.add_widget(header)
         
         # Application settings card
@@ -208,7 +202,19 @@ class SettingsScreen(Screen):
         info_card.add_widget(info_layout)
         main_layout.add_widget(info_card)
         
-        self.add_widget(main_layout)
+        scroll.add_widget(main_layout)
+        main_container.add_widget(scroll)
+        
+        # Add bottom menu
+        self.bottom_menu = BottomMenu(self.app)
+        main_container.add_widget(self.bottom_menu)
+        
+        self.add_widget(main_container)
+    
+    def on_enter(self):
+        """Called when entering the screen"""
+        super().on_enter()
+        self.bottom_menu.set_active_button('settings')
     
     def create_card(self, bg_color):
         """Create a modern card container"""

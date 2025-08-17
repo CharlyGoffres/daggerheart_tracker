@@ -44,7 +44,7 @@ ApplicationWindow {
         anchors.fill: parent
         anchors.bottomMargin: bottomNavigation.height
         
-        initialItem: MenuScreen {}
+        initialItem: RollsScreen {}
         
         pushEnter: Transition {
             PropertyAnimation {
@@ -85,9 +85,6 @@ ApplicationWindow {
         var component
         
         switch(screenName) {
-            case "menu":
-                component = Qt.createComponent("MenuScreen.qml")
-                break
             case "rolls":
                 component = Qt.createComponent("RollsScreen.qml")
                 break

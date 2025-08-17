@@ -8,10 +8,10 @@ Rectangle {
     
     signal screenRequested(string screenName)
     
-    property string currentScreen: "menu"
-    property var buttons: ["menu", "rolls", "character", "combat", "settings"]
-    property var buttonIcons: ["🏠", "🎲", "⚔️", "⚡", "⚙️"]
-    property var buttonLabels: ["Menú", "Dados", "Personaje", "Combate", "Config"]
+    property string currentScreen: "rolls"
+    property var buttons: ["rolls", "character", "combat", "settings"]
+    property var buttonIcons: ["", "⚔️", "⚡", "⚙️"]
+    property var buttonLabels: ["Dados", "Personaje", "Combate", "Config"]
     
     RowLayout {
         anchors.fill: parent

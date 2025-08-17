@@ -41,7 +41,8 @@ class MenuScreen(Screen):
             'height': 80
         }
         card.add_widget(Button(text='🎲 Tiradas', on_release=lambda x: app.switch_screen('rolls'), **btn_style))
-        card.add_widget(Button(text='🟢 GPIO Monitor', on_release=lambda x: app.switch_screen('gpio'), **btn_style))
+        card.add_widget(Button(text='� Ficha', on_release=lambda x: app.switch_screen('characteristics'), **btn_style))
+        card.add_widget(Button(text='�🟢 GPIO Monitor', on_release=lambda x: app.switch_screen('gpio'), **btn_style))
         card.add_widget(Button(text='⚙️ Ajustes', on_release=lambda x: app.switch_screen('settings'), **btn_style))
         # Exit button at the bottom
         exit_anchor = AnchorLayout(anchor_x='center', anchor_y='bottom')

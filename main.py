@@ -21,6 +21,7 @@ from screens.menu import MenuScreen
 from screens.settings import SettingsScreen
 from screens.gpio import GPIOScreen
 from screens.rolls import RollsScreen
+from screens.characteristics import CharacteristicsScreen
 
 # Set window size for testing (remove on real Pi)
 Window.size = (800, 480)
@@ -42,6 +43,7 @@ class MainApp(App):
         self.sm.add_widget(SettingsScreen(name='settings', app=self))
         self.sm.add_widget(GPIOScreen(name='gpio', app=self))
         self.sm.add_widget(RollsScreen(name='rolls', app=self))
+        self.sm.add_widget(CharacteristicsScreen(name='characteristics', app=self))
         return self.sm
 
     def switch_screen(self, screen_name):

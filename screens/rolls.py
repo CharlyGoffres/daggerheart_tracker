@@ -192,18 +192,3 @@ class RollsScreen(Screen):
             popup.open()
             self.result_label.text = f"{ability}: {dice[0]} + {dice[1]}{mod_str}{extra_text} = {total}"
             return False
-
-    def roll_ability(self, instance):
-        roll1 = random.randint(1, 12)
-        roll2 = random.randint(1, 12)
-        total = roll1 + roll2
-        # Show a popup for a more enjoyable effect
-        popup_content = BoxLayout(orientation='vertical', spacing=10, padding=20)
-        popup_content.add_widget(Label(text=f"[b]{instance.text}[/b]", markup=True, font_size=28, color=get_color_from_hex('#1b4965')))
-        popup_content.add_widget(Label(text=f"🎲 {roll1} + {roll2} = [b]{total}[/b]", markup=True, font_size=36, color=get_color_from_hex('#1b4965')))
-        close_btn = Button(text="Cerrar", size_hint=(1, 0.5), font_size=22, background_color=get_color_from_hex('#62b6cb'), color=get_color_from_hex('#fff'))
-        popup_content.add_widget(close_btn)
-        popup = Popup(title="Resultado de la Tirada", content=popup_content, size_hint=(None, None), size=(400, 300), auto_dismiss=False)
-        close_btn.bind(on_release=popup.dismiss)
-        popup.open()
-        self.result_label.text = f"{instance.text}: {roll1} + {roll2} = {total}"

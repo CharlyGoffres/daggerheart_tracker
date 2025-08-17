@@ -71,4 +71,4 @@ class SettingsScreen(Screen):
     def toggle_setting(self, instance):
         current = self.app.settings_manager.get('example_setting', True)
         self.app.settings_manager.set('example_setting', not current)
-        self.status_label.text = f"Example Setting: {not current}"
+        self.status_label.text = f"Ajuste de ejemplo: {not current}"

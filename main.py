@@ -28,6 +28,15 @@ Window.size = (800, 480)
 class MainApp(App):
     def build(self):
         self.settings_manager = SettingsManager('settings.json')
+        # Character data with ability modifiers
+        self.character = {
+            'Fuerza': 2,
+            'Destreza': 1,
+            'Carisma': 0,
+            'Constitución': 1,
+            'Sabiduría': 0,
+            'Inteligencia': -1
+        }
         self.sm = ScreenManager(transition=FadeTransition())
         self.sm.add_widget(MenuScreen(name='menu', app=self))
         self.sm.add_widget(SettingsScreen(name='settings', app=self))

@@ -131,7 +131,10 @@ class RollsScreen(Screen):
             text='Selecciona una habilidad para comenzar',
             font_size=20,
             color=get_color_from_hex('#ecf0f1'),
-            halign='center'
+            halign='center',
+            valign='middle',
+            text_size=(None, None),
+            markup=True
         )
         results_layout.add_widget(self.result_label)
 
@@ -140,7 +143,9 @@ class RollsScreen(Screen):
             text='🎲 🎲',
             font_size=64,
             color=RollsScreen.rgba('#f39c12'),
-            halign='center'
+            halign='center',
+            valign='middle',
+            text_size=(None, None)
         )
         results_layout.add_widget(self.dice_label)
         
@@ -191,10 +196,13 @@ class RollsScreen(Screen):
         card = BoxLayout(orientation='vertical')
         with card.canvas.before:
             Color(rgba=get_color_from_hex(bg_color) + [0.9])
-            self.card_rect = RoundedRectangle(radius=[20], pos=card.pos, size=card.size)
+            card.card_rect = RoundedRectangle(radius=[20], pos=card.pos, size=card.size)
         
-        card.bind(pos=lambda *args: setattr(self.card_rect, 'pos', card.pos),
-                 size=lambda *args: setattr(self.card_rect, 'size', card.size))
+        def update_card_bg(*args):
+            card.card_rect.pos = card.pos
+            card.card_rect.size = card.size
+            
+        card.bind(pos=update_card_bg, size=update_card_bg)
         return card
     
     def create_ability_button(self, text, color, callback):
@@ -206,6 +214,9 @@ class RollsScreen(Screen):
             color=RollsScreen.rgba('#ffffff'),
             size_hint_y=None,
             height=80,
+            halign='center',
+            valign='middle',
+            text_size=(None, None),
             on_release=callback
         )
         
@@ -213,8 +224,11 @@ class RollsScreen(Screen):
             Color(rgba=get_color_from_hex(color))
             btn.bg_rect = RoundedRectangle(radius=[15], pos=btn.pos, size=btn.size)
         
-        btn.bind(pos=lambda *args: setattr(btn.bg_rect, 'pos', btn.pos),
-                size=lambda *args: setattr(btn.bg_rect, 'size', btn.size))
+        def update_btn_bg(*args):
+            btn.bg_rect.pos = btn.pos
+            btn.bg_rect.size = btn.size
+            
+        btn.bind(pos=update_btn_bg, size=update_btn_bg)
         
         return btn
     

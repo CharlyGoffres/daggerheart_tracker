@@ -219,8 +219,11 @@ class SettingsScreen(Screen):
             Color(rgba=get_color_from_hex(bg_color) + [0.9])
             card.bg_rect = RoundedRectangle(radius=[20], pos=card.pos, size=card.size)
         
-        card.bind(pos=lambda *args: setattr(card.bg_rect, 'pos', card.pos),
-                 size=lambda *args: setattr(card.bg_rect, 'size', card.size))
+        def update_card_bg(*args):
+            card.bg_rect.pos = card.pos
+            card.bg_rect.size = card.size
+            
+        card.bind(pos=update_card_bg, size=update_card_bg)
         return card
     
     def create_setting_row(self, title, description, control_type, initial_value, callback):
@@ -235,7 +238,8 @@ class SettingsScreen(Screen):
             font_size=20,
             color=get_color_from_hex('#ecf0f1'),
             halign='left',
-            text_size=(None, None),
+            valign='bottom',
+            text_size=(200, None),
             size_hint_y=None,
             height=30
         )
@@ -246,7 +250,8 @@ class SettingsScreen(Screen):
             font_size=14,
             color=get_color_from_hex('#bdc3c7'),
             halign='left',
-            text_size=(None, None),
+            valign='top',
+            text_size=(200, None),
             size_hint_y=None,
             height=25
         )

@@ -76,6 +76,7 @@ class MenuScreen(Screen):
             font_size=56,
             color=get_color_from_hex('#ffffff'),
             halign='center',
+            valign='middle',
             text_size=(None, None)
         )
         title_container.add_widget(title)
@@ -147,32 +148,38 @@ class MenuScreen(Screen):
     
     def create_nav_card(self, title, subtitle, color, callback):
         """Create a modern navigation card"""
-        card = BoxLayout(orientation='horizontal', size_hint_y=None, height=100, spacing=20)
+        card_container = AnchorLayout(size_hint_y=None, height=100)
+        card = BoxLayout(orientation='horizontal', spacing=20, padding=[20, 10])
         
         # Card background
         with card.canvas.before:
             Color(rgba=get_color_from_hex('#ffffff') + [0.95])
-            self.card_bg = RoundedRectangle(radius=[20], pos=card.pos, size=card.size)
+            card.bg_rect = RoundedRectangle(radius=[20], pos=card.pos, size=card.size)
         
-        card.bind(pos=lambda *args: setattr(self.card_bg, 'pos', card.pos),
-                 size=lambda *args: setattr(self.card_bg, 'size', card.size))
+        def update_card_bg(*args):
+            card.bg_rect.pos = card.pos
+            card.bg_rect.size = card.size
+        
+        card.bind(pos=update_card_bg, size=update_card_bg)
         
         # Icon section
         icon_section = AnchorLayout(size_hint_x=0.2)
         with icon_section.canvas.before:
             Color(rgba=get_color_from_hex(color))
-            self.icon_bg = RoundedRectangle(radius=[15], pos=(0, 0), size=(60, 60))
+            icon_section.icon_bg = RoundedRectangle(radius=[15], pos=(0, 0), size=(60, 60))
         
         # Content section
-        content = BoxLayout(orientation='vertical', size_hint_x=0.8, padding=[10, 10])
+        content = BoxLayout(orientation='vertical', size_hint_x=0.8, padding=[20, 15, 10, 15], spacing=5)
         
         title_label = Label(
             text=title,
             font_size=22,
             color=get_color_from_hex('#2c3e50'),
             halign='left',
-            text_size=(None, None),
-            markup=True
+            valign='bottom',
+            text_size=(300, None),
+            markup=True,
+            size_hint_y=0.6
         )
         
         subtitle_label = Label(
@@ -180,7 +187,9 @@ class MenuScreen(Screen):
             font_size=16,
             color=get_color_from_hex('#7f8c8d'),
             halign='left',
-            text_size=(None, None)
+            valign='top',
+            text_size=(300, None),
+            size_hint_y=0.4
         )
         
         content.add_widget(title_label)
@@ -195,7 +204,6 @@ class MenuScreen(Screen):
             on_release=callback
         )
         
-        card_container = AnchorLayout()
         card_container.add_widget(card)
         card_container.add_widget(button_overlay)
         

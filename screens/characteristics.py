@@ -304,8 +304,11 @@ class CharacteristicsScreen(Screen):
             Color(rgba=get_color_from_hex(bg_color) + [alpha])
             card.bg_rect = RoundedRectangle(radius=[20], pos=card.pos, size=card.size)
         
-        card.bind(pos=lambda *args: setattr(card.bg_rect, 'pos', card.pos),
-                 size=lambda *args: setattr(card.bg_rect, 'size', card.size))
+        def update_card_bg(*args):
+            card.bg_rect.pos = card.pos
+            card.bg_rect.size = card.size
+            
+        card.bind(pos=update_card_bg, size=update_card_bg)
         return card
     
     def create_ability_card(self, ability, modifier, color):
@@ -318,7 +321,12 @@ class CharacteristicsScreen(Screen):
             Color(rgba=get_color_from_hex(color))
             card.border_rect = Line(rounded_rectangle=(card.pos[0], card.pos[1], card.size[0], card.size[1], 15), width=2)
         
-        card.bind(pos=self.update_ability_card_graphics, size=self.update_ability_card_graphics)
+        def update_ability_graphics(*args):
+            card.bg_rect.pos = card.pos
+            card.bg_rect.size = card.size
+            card.border_rect.rounded_rectangle = (card.pos[0], card.pos[1], card.size[0], card.size[1], 15)
+        
+        card.bind(pos=update_ability_graphics, size=update_ability_graphics)
         
         # Ability name
         ability_label = Label(
@@ -326,7 +334,10 @@ class CharacteristicsScreen(Screen):
             font_size=18,
             color=get_color_from_hex('#ecf0f1'),
             size_hint_y=None,
-            height=30
+            height=30,
+            halign='center',
+            valign='middle',
+            text_size=(None, None)
         )
         card.add_widget(ability_label)
         
@@ -346,14 +357,6 @@ class CharacteristicsScreen(Screen):
         card.add_widget(modifier_input)
         
         return card
-    
-    def update_ability_card_graphics(self, card, *args):
-        """Update ability card graphics on position/size change"""
-        if hasattr(card, 'bg_rect'):
-            card.bg_rect.pos = card.pos
-            card.bg_rect.size = card.size
-        if hasattr(card, 'border_rect'):
-            card.border_rect.rounded_rectangle = (card.pos[0], card.pos[1], card.size[0], card.size[1], 15)
     
     def update_bg(self, *args):
         self.bg_rect.pos = self.pos

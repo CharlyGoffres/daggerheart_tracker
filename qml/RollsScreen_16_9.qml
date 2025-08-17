@@ -34,16 +34,9 @@ Item {
         anchors.fill: parent
         anchors.margins: isWideScreen ? 30 : (isSmallScreen ? 10 : 20)
         
-        // Contenedor centrado para todo el contenido
-        Item {
+        Column {
             width: parent.width
-            height: contentColumn.height
-            
-            Column {
-                id: contentColumn
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: Math.min(parent.width, isWideScreen ? 1400 : 1200) // Ancho máximo centrado
-                spacing: isWideScreen ? 25 : (isSmallScreen ? 15 : 20)
+            spacing: isWideScreen ? 25 : (isSmallScreen ? 15 : 20)
             
             // Header optimizado para 16:9 - más compacto horizontalmente
             Row {
@@ -381,7 +374,6 @@ Item {
                     }
                 }
             }
-        }
         }
     }
     

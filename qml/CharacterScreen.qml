@@ -5,6 +5,12 @@ import QtQuick.Layouts 1.15
 Item {
     id: characterScreen
     
+    // Optimización para pantallas 16:9
+    property bool isWideScreen: width / height >= 1.6
+    property bool isSmallScreen: width <= 800
+    property int headerHeight: isWideScreen ? 80 : 100
+    property int cardPadding: isWideScreen ? 30 : 20
+    
     // Beautiful gradient background
     Rectangle {
         anchors.fill: parent
@@ -22,21 +28,47 @@ Item {
     
     ScrollView {
         anchors.fill: parent
-        anchors.margins: 20
+        anchors.margins: isWideScreen ? 30 : (isSmallScreen ? 10 : 20)
         
-        Column {
+        // Contenedor centrado
+        Item {
             width: parent.width
-            spacing: 20
+            height: contentColumn.height
             
-            // Header
-            Text {
+            Column {
+                id: contentColumn
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "⚔️ FICHA DE PERSONAJE"
-                font.pixelSize: 36
-                font.bold: true
-                color: "#ffffff"
+                width: Math.min(parent.width, isWideScreen ? 1400 : 1200)
+                spacing: isWideScreen ? 20 : (isSmallScreen ? 15 : 20)
                 
-            }
+                // Header optimizado para 16:9
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 30
+                    height: headerHeight
+                    
+                    Text {
+                        text: "⚔️"
+                        font.pixelSize: isWideScreen ? 40 : 48
+                        color: "#ffffff"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "FICHA DE PERSONAJE - DAGGERHEART"
+                        font.pixelSize: isWideScreen ? 28 : 36
+                        font.bold: true
+                        color: "#ffffff"
+                    }
+                    
+                    Text {
+                        text: "🛡️"
+                        font.pixelSize: isWideScreen ? 40 : 48
+                        color: "#ffffff"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
             
             // Character Info Card
             Rectangle {
@@ -153,6 +185,7 @@ Item {
                 color: "#ffffff"
                 opacity: 0.7
             }
+        }
         }
     }
 }

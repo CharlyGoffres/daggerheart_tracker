@@ -20,6 +20,11 @@ import random
 
 class RollsScreen(Screen):
 
+    @staticmethod
+    def rgba(hexstr):
+        c = get_color_from_hex(hexstr)
+        return c if len(c) == 4 else c + [1.0] * (4 - len(c))
+
     def __init__(self, app, **kwargs):
         super().__init__(**kwargs)
         self.app = app
@@ -45,8 +50,8 @@ class RollsScreen(Screen):
             values=('Normal', 'Ventaja', 'Desventaja', 'Doble Ventaja', 'Triple Ventaja'),
             size_hint=(None, None),
             size=(260, 44),
-            background_color=get_color_from_hex('#62b6cb'),
-            color=get_color_from_hex('#1b4965'),
+            background_color=RollsScreen.rgba('#62b6cb'),
+            color=RollsScreen.rgba('#1b4965'),
             font_size=22
         )
         card.add_widget(Label(text='Tipo de tirada:', font_size=20, color=get_color_from_hex('#1b4965'), size_hint_y=None, height=28))
@@ -58,8 +63,8 @@ class RollsScreen(Screen):
             values=('Sin modificador', '+1', '+2', '1d4'),
             size_hint=(None, None),
             size=(260, 44),
-            background_color=get_color_from_hex('#97c1a9'),
-            color=get_color_from_hex('#1b4965'),
+            background_color=RollsScreen.rgba('#97c1a9'),
+            color=RollsScreen.rgba('#1b4965'),
             font_size=22
         )
         card.add_widget(Label(text='Modificador:', font_size=20, color=get_color_from_hex('#1b4965'), size_hint_y=None, height=28))
@@ -69,8 +74,9 @@ class RollsScreen(Screen):
         self.result_label = Label(text="Selecciona una habilidad para tirar 2d12", font_size=24, color=get_color_from_hex('#1b4965'))
         card.add_widget(self.result_label)
 
+
         # Dice animation area
-        self.dice_label = Label(text='', font_size=48, color=get_color_from_hex('#1b4965'))
+        self.dice_label = Label(text='', font_size=48, color=RollsScreen.rgba('#1b4965'))
         card.add_widget(self.dice_label)
 
         # Abilities grid
@@ -82,8 +88,8 @@ class RollsScreen(Screen):
             btn = Button(
                 text=f'🎲 {ability}',
                 font_size=28,
-                background_color=get_color_from_hex(btn_colors[i]),
-                color=get_color_from_hex('#1b4965'),
+                background_color=RollsScreen.rgba(btn_colors[i]),
+                color=RollsScreen.rgba('#1b4965'),
                 size_hint_y=None,
                 height=70,
                 on_release=self.roll_ability
@@ -101,9 +107,9 @@ class RollsScreen(Screen):
             font_size=26,
             size_hint=(None, None),
             size=(320, 60),
-            background_color=get_color_from_hex('#62b6cb'),
-            color=get_color_from_hex('#fff'),
-            on_release=lambda x: app.switch_screen('menu')
+            background_color=RollsScreen.rgba('#62b6cb'),
+            color=RollsScreen.rgba('#ffffff'),
+            on_release=lambda x: self.app.switch_screen('menu')
         )
         back_anchor.add_widget(back_btn)
         card.add_widget(back_anchor)
@@ -177,9 +183,9 @@ class RollsScreen(Screen):
             self.dice_label.text = f'🎲 {dice[0]}   🎲 {dice[1]}'
             # Show popup with result
             popup_content = BoxLayout(orientation='vertical', spacing=10, padding=20)
-            popup_content.add_widget(Label(text=f"[b]{ability}[/b]", markup=True, font_size=28, color=get_color_from_hex('#1b4965')))
-            popup_content.add_widget(Label(text=f"🎲 {dice[0]} + {dice[1]}{mod_str}{extra_text} = [b]{total}[/b]", markup=True, font_size=36, color=get_color_from_hex('#1b4965')))
-            close_btn = Button(text="Cerrar", size_hint=(1, 0.5), font_size=22, background_color=get_color_from_hex('#62b6cb'), color=get_color_from_hex('#fff'))
+            popup_content.add_widget(Label(text=f"[b]{ability}[/b]", markup=True, font_size=28, color=RollsScreen.rgba('#1b4965')))
+            popup_content.add_widget(Label(text=f"🎲 {dice[0]} + {dice[1]}{mod_str}{extra_text} = [b]{total}[/b]", markup=True, font_size=36, color=RollsScreen.rgba('#1b4965')))
+            close_btn = Button(text="Cerrar", size_hint=(1, 0.5), font_size=22, background_color=RollsScreen.rgba('#62b6cb'), color=RollsScreen.rgba('#ffffff'))
             popup_content.add_widget(close_btn)
             popup = Popup(title="Resultado de la Tirada", content=popup_content, size_hint=(None, None), size=(440, 320), auto_dismiss=False)
             close_btn.bind(on_release=popup.dismiss)

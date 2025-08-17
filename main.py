@@ -30,8 +30,8 @@ from screens.combat import CombatScreen
 
 # Set responsive window size
 Window.size = (1024, 768)
-Window.minimum_width = 1024
-Window.minimum_height = 768
+Window.minimum_width = 800
+Window.minimum_height = 600
 
 class MainApp(App):
     def build(self):

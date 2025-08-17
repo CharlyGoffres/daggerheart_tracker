@@ -14,7 +14,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.graphics import Color, RoundedRectangle, Line
-from components.bottom_menu import BottomMenu
+from components.bottom_menu_adaptive import AdaptiveBottomMenu
 
 class CharacteristicsScreen(Screen):
     def __init__(self, app, **kwargs):
@@ -287,7 +287,7 @@ class CharacteristicsScreen(Screen):
         main_container.add_widget(scroll)
         
         # Add bottom menu
-        self.bottom_menu = BottomMenu(self.app)
+        self.bottom_menu = AdaptiveBottomMenu(self.app)
         main_container.add_widget(self.bottom_menu)
         
         self.add_widget(main_container)

@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import QtGraphicalEffects 1.15
 
 Item {
     id: menuScreen
@@ -30,14 +29,6 @@ Item {
                         font.bold: true
                         color: "#ffffff"
                         horizontalAlignment: Text.AlignHCenter
-                        
-                        DropShadow {
-                            anchors.fill: parent
-                            source: parent
-                            radius: 8
-                            samples: 16
-                            color: Qt.rgba(0, 0, 0, 0.5)
-                        }
                     }
                     
                     Text {

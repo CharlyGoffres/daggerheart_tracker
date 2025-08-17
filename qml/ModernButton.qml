@@ -1,6 +1,5 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtGraphicalEffects 1.15
 
 Button {
     id: modernButton
@@ -23,16 +22,6 @@ Button {
                 duration: settings.animationsEnabled ? 150 : 0
                 easing.type: Easing.OutQuad
             }
-        }
-        
-        // Drop shadow
-        DropShadow {
-            anchors.fill: buttonBackground
-            source: buttonBackground
-            radius: 4
-            samples: 8
-            color: Qt.rgba(0, 0, 0, 0.3)
-            cached: true
         }
     }
     

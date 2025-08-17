@@ -7,9 +7,9 @@ Modern RPG companion app built with PySide6 and QML
 import sys
 import os
 from pathlib import Path
-from PySide6.QtGui import QGuiApplication, qmlRegisterType
-from PySide6.QtQml import QQmlApplicationEngine
-from PySide6.QtCore import QObject, Signal, Slot, Property, QPropertyAnimation, QEasingCurve
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterType
+from PySide6.QtCore import QObject, Signal, Slot, Property
 
 # Add the project directory to Python path
 sys.path.append(str(Path(__file__).parent))

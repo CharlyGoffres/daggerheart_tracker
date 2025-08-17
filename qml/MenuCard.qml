@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import QtGraphicalEffects 1.15
 
 Rectangle {
     id: card
@@ -91,15 +90,5 @@ Rectangle {
         property: "scale"
         duration: settings.animationsEnabled ? 150 : 0
         easing.type: Easing.OutQuad
-    }
-    
-    // Drop shadow
-    DropShadow {
-        anchors.fill: card
-        source: card
-        radius: 8
-        samples: 16
-        color: Qt.rgba(0, 0, 0, 0.1)
-        cached: true
     }
 }

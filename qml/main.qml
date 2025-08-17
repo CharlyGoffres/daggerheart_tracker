@@ -6,13 +6,22 @@ import QtQuick.Window 2.15
 ApplicationWindow {
     id: window
     visible: true
-    width: 1200
-    height: 800
-    minimumWidth: 800
-    minimumHeight: 600
+    
+    // Raspberry Pi optimized window sizing
+    width: Screen.width <= 800 ? 800 : 1200
+    height: Screen.height <= 480 ? 480 : 800
+    minimumWidth: 480   // Raspberry Pi 3.5" screen support
+    minimumHeight: 320  // Raspberry Pi 3.5" screen support
+    
     title: "Daggerheart Tracker"
     
+    // Raspberry Pi detection and optimization
+    property bool isRaspberryPi: Screen.width <= 800 && Screen.height <= 480
     property bool isDarkTheme: settings.darkTheme
+    
+    // Responsive sizing for Raspberry Pi
+    property real scaleFactor: isRaspberryPi ? 0.8 : 1.0
+    property real touchTargetSize: isRaspberryPi ? 60 : 44
     
     // Color scheme
     property color primaryColor: "#667eea"

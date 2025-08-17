@@ -4,7 +4,7 @@ Daggerheart Tracker - A beautiful, responsive character tracker for Daggerheart 
 Features:
 - Modern Material Design-inspired UI
 - Smooth animations and transitions
-- Responsive layout
+- Responsive layout with Raspberry Pi optimizations
 - Character management
 - Advanced dice rolling system
 """
@@ -18,6 +18,7 @@ from kivy.uix.button import Button
 from kivy.core.window import Window
 from kivy.animation import Animation
 from utils.settings import SettingsManager
+from components.platform_config import PlatformConfig
 
 from screens.menu import MenuScreen
 from screens.simple_menu import SimpleMenuScreen
@@ -29,14 +30,27 @@ from screens.combat import CombatScreen
 from screens.ability_checks import AbilityChecksScreen
 from screens.combat import CombatScreen
 
-# Set responsive window size with better minimum constraints
-Window.minimum_width = 320  # Allow smaller mobile screens
-Window.minimum_height = 480  # Allow smaller mobile screens
-Window.size = (1024, 768)   # Default desktop size
+# Set responsive window size with platform detection
+system_info = PlatformConfig.get_system_info()
+if system_info.get('is_raspberry_pi', False):
+    # Raspberry Pi optimizations
+    rpi_opts = PlatformConfig.get_raspberry_pi_optimizations()
+    Window.size = rpi_opts['window_size']
+    Window.minimum_width = 480
+    Window.minimum_height = 320
+else:
+    # Standard desktop/mobile sizes
+    Window.minimum_width = 320  # Allow smaller mobile screens
+    Window.minimum_height = 480  # Allow smaller mobile screens
+    Window.size = (1024, 768)   # Default desktop size
 
 class MainApp(App):
     def build(self):
         self.settings_manager = SettingsManager('settings.json')
+        
+        # Check if running on Raspberry Pi for optimizations
+        system_info = PlatformConfig.get_system_info()
+        self.is_raspberry_pi = system_info.get('is_raspberry_pi', False)
         
         # Enhanced character data with more RPG stats
         self.character = {
@@ -63,8 +77,14 @@ class MainApp(App):
             }
         }
         
-        # Create screen manager with smooth transitions
-        self.sm = ScreenManager(transition=SlideTransition())
+        # Create screen manager with optimized transitions for Raspberry Pi
+        if self.is_raspberry_pi:
+            rpi_opts = PlatformConfig.get_raspberry_pi_optimizations()
+            transition = SlideTransition(duration=rpi_opts['animation_duration'])
+        else:
+            transition = SlideTransition()
+            
+        self.sm = ScreenManager(transition=transition)
         
         # Add screens
         self.sm.add_widget(MenuScreen(name='menu', app=self))

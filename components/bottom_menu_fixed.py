@@ -48,13 +48,18 @@ class FixedBottomMenuButton(Button):
         """Update button properties based on screen size"""
         try:
             screen_type = ResponsiveUtils.get_screen_type()
+            system_info = PlatformConfig.get_system_info()
             
-            # Responsive button height
-            if screen_type == 'mobile':
+            # Responsive button height with Raspberry Pi optimizations
+            if screen_type in ['mobile', 'rpi_small']:
+                self.height = 50
+                icon_size = 10
+                text_size = 7
+            elif screen_type in ['tablet', 'rpi_medium']:
                 self.height = 60
                 icon_size = 12
                 text_size = 8
-            elif screen_type == 'tablet':
+            elif screen_type == 'rpi_large':
                 self.height = 65
                 icon_size = 13
                 text_size = 9
@@ -62,6 +67,11 @@ class FixedBottomMenuButton(Button):
                 self.height = 70
                 icon_size = 14
                 text_size = 10
+            
+            # For Raspberry Pi, ensure minimum touch target size
+            if system_info.get('is_raspberry_pi', False):
+                min_height = ResponsiveUtils.get_touch_target_size()
+                self.height = max(self.height, min_height)
             
             # Update text with responsive sizes
             self.text = f'[b][size={icon_size}]{self.icon}[/size][/b]\n[size={text_size}]{self.button_text}[/size]'
@@ -140,28 +150,27 @@ class FixedBottomMenu(BoxLayout):
         self.bind(pos=self.update_bg, size=self.update_bg)
         Window.bind(on_resize=self.on_window_resize)
         
-        # Menu buttons with fixed configuration
+        # Menu buttons with dynamic configuration based on platform
         self.buttons = {}
         
-        # Fixed button configuration for PC
-        button_configs = [
-            ('MENU', 'Menú', 'simple_menu'),
-            ('DICE', 'Dados', 'rolls'),
-            ('CHAR', 'Personaje', 'characteristics'),
-            ('FIGHT', 'Combate', 'combat'),
-            ('GEAR', 'Ajustes', 'settings')
-        ]
+        # Get platform-specific button configuration
+        button_config = PlatformConfig.get_button_config()
         
-        for icon_text, label, screen_name in button_configs:
-            btn = FixedBottomMenuButton(
-                icon=icon_text,
-                text=label,
-                screen_name=screen_name,
-                app=self.app,
-                size_hint_x=0.19  # Optimized for 5 buttons with spacing
-            )
-            self.buttons[screen_name] = btn
-            self.add_widget(btn)
+        # Button configurations in order
+        button_screens = ['simple_menu', 'rolls', 'characteristics', 'combat', 'settings']
+        
+        for screen_name in button_screens:
+            if screen_name in button_config:
+                config = button_config[screen_name]
+                btn = FixedBottomMenuButton(
+                    icon=config['icon'],
+                    text=config['text'],
+                    screen_name=screen_name,
+                    app=self.app,
+                    size_hint_x=0.19  # Optimized for 5 buttons with spacing
+                )
+                self.buttons[screen_name] = btn
+                self.add_widget(btn)
         
         # Schedule responsive update
         Clock.schedule_once(self.update_responsive_properties, 0.1)
@@ -173,14 +182,17 @@ class FixedBottomMenu(BoxLayout):
     def update_responsive_properties(self, *args):
         """Update menu properties based on screen size"""
         try:
-            # Responsive height and spacing
+            # Responsive height and spacing with Raspberry Pi support
             self.height = ResponsiveUtils.get_bottom_menu_height()
             
             screen_type = ResponsiveUtils.get_screen_type()
-            if screen_type == 'mobile':
+            if screen_type in ['mobile', 'rpi_small']:
+                self.spacing = 3
+                self.padding = [6, 6, 6, 6]
+            elif screen_type in ['tablet', 'rpi_medium']:
                 self.spacing = 4
                 self.padding = [8, 8, 8, 8]
-            elif screen_type == 'tablet':
+            elif screen_type == 'rpi_large':
                 self.spacing = 5
                 self.padding = [10, 10, 10, 10]
             else:

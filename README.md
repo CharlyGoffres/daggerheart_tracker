@@ -1,22 +1,22 @@
 # 🎲 Daggerheart Tracker - Modern Edition
 
-Una aplicación hermosa y moderna para gestionar personajes de Daggerheart RPG, completamente rediseñada con una interfaz Material Design.
+Una aplicación hermosa y moderna para gestionar personajes de Daggerheart RPG, completamente rediseñada con Qt/QML.
 
 ## ✨ Características Principales
 
 ### 🎨 Diseño Visual Radical
-- **Interfaz moderna** con gradientes y colores vibrantes
-- **Material Design** con tarjetas flotantes y sombras
+- **Interfaz moderna** con Qt Material Design
+- **QML responsive** con componentes nativos
 - **Animaciones fluidas** y transiciones suaves
 - **Responsive design** que se adapta a diferentes tamaños de pantalla
-- **Sin dependencias GPIO** - funciona en cualquier sistema
+- **Cross-platform** - funciona en Windows, macOS, Linux
 
 ### 🎲 Sistema de Tiradas Avanzado
-- **Animaciones de dados** coloridas y dinámicas
+- **Animaciones de dados** con Qt Quick
 - **Múltiples tipos de tirada**: Normal, Ventaja, Desventaja, Doble/Triple Ventaja
 - **Modificadores personalizables**: +1, +2, 1d4
 - **Análisis automático** de éxito/fallo con umbrales configurables
-- **Popups informativos** con resultados detallados
+- **Interfaz intuitiva** con resultados detallados
 
 ### ⚔️ Gestión Completa de Personajes
 - **Ficha interactiva** con todas las estadísticas
@@ -34,19 +34,19 @@ Una aplicación hermosa y moderna para gestionar personajes de Daggerheart RPG, 
 ## 🚀 Cómo Ejecutar
 
 ### Requisitos
-- Python 3.7 o superior
-- Kivy 2.0+
+- Python 3.8 o superior
+- PySide6 (Qt for Python)
 
 ### Instalación
 ```bash
 # Clonar o descargar el proyecto
 cd daggerheart_trackers
 
-# Instalar dependencias
-pip install kivy
+# Instalar dependencias Qt
+pip install -r requirements_qt.txt
 
 # Ejecutar la aplicación
-python main.py
+python main_qt.py
 ```
 
 ## 📱 Pantallas Principales

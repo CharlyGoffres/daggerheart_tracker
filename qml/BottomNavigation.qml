@@ -10,8 +10,14 @@ Rectangle {
     
     property string currentScreen: "rolls"
     property var buttons: ["rolls", "character", "combat", "settings"]
-    property var buttonIcons: ["", "⚔️", "⚡", "⚙️"]
+    // Raspberry Pi optimized dice icons using Unicode dice symbols
+    property var buttonIcons: ["⚀⚁", "⚔️", "⚡", "⚙️"]
     property var buttonLabels: ["Dados", "Personaje", "Combate", "Config"]
+    
+    // Raspberry Pi touch-friendly sizing
+    property real iconSize: width < 800 ? 20 : 24  // Smaller icons for RPi 7" screen
+    property real textSize: width < 800 ? 10 : 12  // Smaller text for RPi
+    property real buttonSpacing: width < 800 ? 2 : 4  // Tighter spacing on small screens
     
     RowLayout {
         anchors.fill: parent
@@ -25,28 +31,39 @@ Rectangle {
                 Layout.fillHeight: true
                 color: currentScreen === modelData ? Qt.rgba(1, 1, 1, 0.2) : "transparent"
                 
+                // Add subtle border for better visibility on RPi screens
+                border.color: currentScreen === modelData ? Qt.rgba(1, 1, 1, 0.3) : "transparent"
+                border.width: 1
+                radius: 4
+                
                 Column {
                     anchors.centerIn: parent
-                    spacing: 4
+                    spacing: bottomNav.buttonSpacing
                     
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: bottomNav.buttonIcons[index]
-                        font.pixelSize: 24
+                        font.pixelSize: bottomNav.iconSize
                         color: "#ffffff"
+                        // Enhanced text rendering for better clarity on RPi
+                        renderType: Text.NativeRendering
+                        font.bold: currentScreen === modelData
                     }
                     
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: bottomNav.buttonLabels[index]
-                        font.pixelSize: 12
+                        font.pixelSize: bottomNav.textSize
                         color: "#ffffff"
-                        opacity: 0.8
+                        opacity: currentScreen === modelData ? 1.0 : 0.8
+                        renderType: Text.NativeRendering
                     }
                 }
                 
                 MouseArea {
                     anchors.fill: parent
+                    // Larger touch area for RPi touchscreens
+                    anchors.margins: -2
                     onClicked: {
                         if (currentScreen !== modelData) {
                             currentScreen = modelData

@@ -5,6 +5,10 @@ import QtQuick.Layouts 1.15
 Item {
     id: rollsScreen
     
+    // Raspberry Pi responsiveness
+    property bool isSmallScreen: width <= 800
+    property real scaleFactor: isSmallScreen ? 0.8 : 1.0
+    
     // Beautiful gradient background specific to rolls
     Rectangle {
         anchors.fill: parent
@@ -22,27 +26,56 @@ Item {
     
     ScrollView {
         anchors.fill: parent
-        anchors.margins: 20
+        anchors.margins: isSmallScreen ? 10 : 20
         
         Column {
             width: parent.width
-            spacing: 20
+            spacing: isSmallScreen ? 15 : 20
             
-            // Header
-            Text {
+            // Header with prominent dice icons
+            Column {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "🎲 TIRADAS DE DADOS"
-                font.pixelSize: 36
-                font.bold: true
-                color: "#ffffff"
+                spacing: 10
                 
+                // Large dice visual for Raspberry Pi
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 5
+                    
+                    Text {
+                        text: "⚀"
+                        font.pixelSize: isSmallScreen ? 32 : 48
+                        color: "#ffffff"
+                        rotation: -15
+                    }
+                    Text {
+                        text: "⚁"
+                        font.pixelSize: isSmallScreen ? 32 : 48
+                        color: "#ffffff"
+                        rotation: 15
+                    }
+                    Text {
+                        text: "⚂"
+                        font.pixelSize: isSmallScreen ? 32 : 48
+                        color: "#ffffff"
+                        rotation: -10
+                    }
+                }
+                
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "TIRADAS DE DADOS"
+                    font.pixelSize: isSmallScreen ? 24 : 36
+                    font.bold: true
+                    color: "#ffffff"
+                }
             }
             
             // Configuration Card
             Rectangle {
                 width: parent.width
-                height: configColumn.height + 40
-                radius: 20
+                height: configColumn.height + (isSmallScreen ? 30 : 40)
+                radius: isSmallScreen ? 15 : 20
                 color: Qt.rgba(52/255, 73/255, 94/255, 0.9) // #34495e with alpha
                 
                 Column {

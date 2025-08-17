@@ -14,7 +14,12 @@ from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.graphics import Color, RoundedRectangle, Line
+from kivy.clock import Clock
 from components.bottom_menu_fixed import FixedBottomMenu
+from components.modern_button import ModernButton, ModernActionButton, ModernDangerButton, ModernSuccessButton
+from components.responsive_utils import ResponsiveUtils
+from components.responsive_layout import ResponsiveBoxLayout, ResponsiveGridLayout
+from components.layout_utils import LayoutUtils
 
 class CharacteristicsScreen(Screen):
     def __init__(self, app, **kwargs):
@@ -28,26 +33,11 @@ class CharacteristicsScreen(Screen):
         
         self.bind(pos=self.update_bg, size=self.update_bg)
         
-        # Main container with bottom menu
-        main_container = BoxLayout(orientation='vertical')
+        # Create scrollable content with proper layout
+        scroll, main_layout = LayoutUtils.create_scrollable_content()
         
-        # Main scrollable container
-        scroll = ScrollView()
-        main_layout = BoxLayout(orientation='vertical', padding=[30, 40, 30, 20], spacing=25, size_hint_y=None)
-        main_layout.bind(minimum_height=main_layout.setter('height'))
-        
-        # Header with title
-        header = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=20)
-        
-        title = Label(
-            text='[b]⚔️ FICHA DE PERSONAJE[/b]',
-            markup=True,
-            font_size=36,
-            color=get_color_from_hex('#ecf0f1'),
-            halign='center'
-        )
-        
-        header.add_widget(title)
+        # Create centered header
+        header, title = LayoutUtils.create_centered_header('[b]⚔️ FICHA DE PERSONAJE[/b]')
         main_layout.add_widget(header)
         
         # Character identity card
@@ -64,8 +54,8 @@ class CharacteristicsScreen(Screen):
         )
         identity_layout.add_widget(identity_title)
         
-        # Character basic info in grid
-        info_grid = GridLayout(cols=2, spacing=15, size_hint_y=None, height=120)
+        # Character basic info in responsive grid
+        info_grid = ResponsiveGridLayout(cols=2, size_hint_y=None, height=120, auto_cols=True)
         
         # Name input
         info_grid.add_widget(Label(text='Nombre:', font_size=18, color=get_color_from_hex('#bdc3c7')))
@@ -269,13 +259,11 @@ class CharacteristicsScreen(Screen):
         main_layout.add_widget(thresholds_card)
         
         # Save button
-        save_btn = Button(
+        save_btn = ModernSuccessButton(
             text='💾 Guardar Cambios',
             font_size=22,
             size_hint=(None, None),
             size=(250, 60),
-            background_color=self.rgba('#3498db'),
-            color=self.rgba('#ffffff'),
             on_release=self.save_character
         )
         
@@ -283,14 +271,20 @@ class CharacteristicsScreen(Screen):
         save_container.add_widget(save_btn)
         main_layout.add_widget(save_container)
         
-        scroll.add_widget(main_layout)
-        main_container.add_widget(scroll)
+        # Create main container with standardized layout
+        main_container, self.bottom_menu = LayoutUtils.create_main_container(
+            self.app, scroll, FixedBottomMenu
+        )
         
-        # Add bottom menu
-        self.bottom_menu = FixedBottomMenu(self.app)
-        main_container.add_widget(self.bottom_menu)
+        # Bind responsive updates
+        LayoutUtils.bind_responsive_updates(main_layout, title)
         
         self.add_widget(main_container)
+    
+    def on_window_resize(self, *args):
+        """Called when window is resized"""
+        # This will trigger responsive updates in all responsive components
+        pass
     
     def on_enter(self):
         """Called when entering the screen"""

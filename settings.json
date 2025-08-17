@@ -1,4 +1,5 @@
 {
   "example_setting": true,
-  "dark_theme": true
+  "dark_theme": true,
+  "dice_speed": 57
 }

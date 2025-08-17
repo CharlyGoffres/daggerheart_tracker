@@ -18,6 +18,8 @@ from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.animation import Animation
 from components.bottom_menu_fixed import FixedBottomMenu
+from components.modern_button import ModernButton, ModernActionButton, ModernDangerButton, ModernSuccessButton, ModernWarningButton
+from components.layout_utils import LayoutUtils
 import random
 
 class CombatScreen(Screen):
@@ -32,26 +34,11 @@ class CombatScreen(Screen):
         
         self.bind(pos=self.update_bg, size=self.update_bg)
         
-        # Main layout with bottom menu
-        main_container = BoxLayout(orientation='vertical')
+        # Create scrollable content with proper layout
+        scroll, content_area = LayoutUtils.create_scrollable_content()
         
-        # Content area with scroll
-        scroll = ScrollView()
-        content_area = BoxLayout(orientation='vertical', padding=[30, 40, 30, 20], spacing=20, size_hint_y=None)
-        content_area.bind(minimum_height=content_area.setter('height'))
-        
-        # Header
-        header = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=20)
-        
-        title = Label(
-            text='[b]⚡ COMBATE[/b]',
-            markup=True,
-            font_size=36,
-            color=get_color_from_hex('#ecf0f1'),
-            halign='center'
-        )
-        
-        header.add_widget(title)
+        # Create centered header
+        header, title = LayoutUtils.create_centered_header('[b]⚡ COMBATE[/b]')
         content_area.add_widget(header)
         
         # Health and Hope status
@@ -95,20 +82,16 @@ class CombatScreen(Screen):
         # HP modification buttons with better spacing
         hp_buttons = BoxLayout(orientation='horizontal', spacing=10, size_hint_x=0.4)
         
-        heal_btn = Button(
+        heal_btn = ModernSuccessButton(
             text='+',
             font_size=20,
-            background_color=self.rgba('#27ae60'),
-            color=self.rgba('#ffffff'),
             size_hint_x=0.5,
             on_release=lambda x: self.modify_hp(1)
         )
         
-        damage_btn = Button(
+        damage_btn = ModernDangerButton(
             text='-',
             font_size=20,
-            background_color=self.rgba('#e74c3c'),
-            color=self.rgba('#ffffff'),
             size_hint_x=0.5,
             on_release=lambda x: self.modify_hp(-1)
         )
@@ -145,20 +128,16 @@ class CombatScreen(Screen):
         # Hope modification buttons with better spacing
         hope_buttons = BoxLayout(orientation='horizontal', spacing=10, size_hint_x=0.4)
         
-        hope_add_btn = Button(
+        hope_add_btn = ModernWarningButton(
             text='+',
             font_size=20,
-            background_color=self.rgba('#f39c12'),
-            color=self.rgba('#ffffff'),
             size_hint_x=0.5,
             on_release=lambda x: self.modify_hope(1)
         )
         
-        hope_sub_btn = Button(
+        hope_sub_btn = ModernDangerButton(
             text='-',
             font_size=20,
-            background_color=self.rgba('#d35400'),
-            color=self.rgba('#ffffff'),
             size_hint_x=0.5,
             on_release=lambda x: self.modify_hope(-1)
         )
@@ -230,13 +209,11 @@ class CombatScreen(Screen):
         weapon_layout.add_widget(weapon_mod_layout)
         
         # Weapon roll button
-        weapon_roll_btn = Button(
+        weapon_roll_btn = ModernDangerButton(
             text='🗡️ ATACAR',
             font_size=20,
             size_hint_y=None,
             height=50,
-            background_color=self.rgba('#e74c3c'),
-            color=self.rgba('#ffffff'),
             on_release=self.roll_weapon_attack
         )
         weapon_layout.add_widget(weapon_roll_btn)
@@ -299,13 +276,13 @@ class CombatScreen(Screen):
         spell_layout.add_widget(spell_mod_layout)
         
         # Spell roll button
-        spell_roll_btn = Button(
+        spell_roll_btn = ModernActionButton(
             text='🔮 LANZAR',
             font_size=20,
             size_hint_y=None,
             height=50,
-            background_color=self.rgba('#9b59b6'),
-            color=self.rgba('#ffffff'),
+            bg_color='#9b59b6',
+            hover_color='#8e44ad',
             on_release=self.roll_spell_attack
         )
         spell_layout.add_widget(spell_roll_btn)
@@ -339,12 +316,13 @@ class CombatScreen(Screen):
         self.results_card.add_widget(self.results_layout)
         content_area.add_widget(self.results_card)
         
-        scroll.add_widget(content_area)
-        main_container.add_widget(scroll)
+        # Create main container with standardized layout
+        main_container, self.bottom_menu = LayoutUtils.create_main_container(
+            self.app, scroll, FixedBottomMenu
+        )
         
-        # Add bottom menu
-        self.bottom_menu = FixedBottomMenu(self.app)
-        main_container.add_widget(self.bottom_menu)
+        # Bind responsive updates
+        LayoutUtils.bind_responsive_updates(content_area, title)
         
         self.add_widget(main_container)
     

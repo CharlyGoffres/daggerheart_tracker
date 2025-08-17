@@ -7,7 +7,9 @@ from kivy.uix.label import Label
 from kivy.graphics import Color, RoundedRectangle
 from kivy.utils import get_color_from_hex
 from kivy.clock import Clock
+from kivy.core.window import Window
 from components.platform_config import PlatformConfig
+from components.responsive_utils import ResponsiveUtils
 
 class FixedBottomMenuButton(Button):
     def __init__(self, icon, text, screen_name, app, **kwargs):
@@ -17,14 +19,10 @@ class FixedBottomMenuButton(Button):
         self.icon = icon
         self.button_text = text
         
-        # Button styling with better defaults
+        # Button styling with responsive defaults
         self.background_color = (0, 0, 0, 0)  # Transparent
         self.size_hint_y = None
-        self.height = 80
         self.markup = True
-        
-        # Always use text-based layout for better PC compatibility
-        self.text = f'[b][size=16]{self.icon}[/size][/b]\n[size=11]{self.button_text}[/size]'
         self.color = get_color_from_hex('#ecf0f1')
         self.halign = 'center'
         self.valign = 'middle'
@@ -37,9 +35,41 @@ class FixedBottomMenuButton(Button):
         self.bind(pos=self.update_bg, size=self.update_bg)
         self.bind(on_press=self.on_button_press)
         self.bind(on_release=self.on_button_release)
+        Window.bind(on_resize=self.on_window_resize)
         
-        # Schedule background initialization
-        Clock.schedule_once(self.update_bg, 0.1)
+        # Schedule responsive update
+        Clock.schedule_once(self.update_responsive_properties, 0.1)
+    
+    def on_window_resize(self, *args):
+        """Called when window is resized"""
+        Clock.schedule_once(self.update_responsive_properties, 0.1)
+    
+    def update_responsive_properties(self, *args):
+        """Update button properties based on screen size"""
+        try:
+            screen_type = ResponsiveUtils.get_screen_type()
+            
+            # Responsive button height
+            if screen_type == 'mobile':
+                self.height = 60
+                icon_size = 12
+                text_size = 8
+            elif screen_type == 'tablet':
+                self.height = 65
+                icon_size = 13
+                text_size = 9
+            else:
+                self.height = 70
+                icon_size = 14
+                text_size = 10
+            
+            # Update text with responsive sizes
+            self.text = f'[b][size={icon_size}]{self.icon}[/size][/b]\n[size={text_size}]{self.button_text}[/size]'
+            
+            # Update background
+            self.update_bg()
+        except Exception as e:
+            print(f"Error updating responsive properties: {e}")
     
     def update_bg(self, *args):
         """Update background rectangle and text size"""
@@ -99,23 +129,24 @@ class FixedBottomMenu(BoxLayout):
         self.app = app
         self.orientation = 'horizontal'
         self.size_hint_y = None
-        self.height = 120
-        self.spacing = 8  # Reduced spacing to fit better
-        self.padding = [15, 15, 15, 15]  # Standard padding
+        self.height = 100  # Reduced height to minimize overlap
+        self.spacing = 6   # Reduced spacing to fit better
+        self.padding = [12, 12, 12, 12]  # Reduced padding
         
         # Initialize background rectangle
         self.bg_rect = None
         
         # Bind events
         self.bind(pos=self.update_bg, size=self.update_bg)
+        Window.bind(on_resize=self.on_window_resize)
         
         # Menu buttons with fixed configuration
         self.buttons = {}
         
         # Fixed button configuration for PC
         button_configs = [
+            ('MENU', 'Menú', 'simple_menu'),
             ('DICE', 'Dados', 'rolls'),
-            ('CHECK', 'Chequeos', 'ability_checks'),
             ('CHAR', 'Personaje', 'characteristics'),
             ('FIGHT', 'Combate', 'combat'),
             ('GEAR', 'Ajustes', 'settings')
@@ -132,8 +163,34 @@ class FixedBottomMenu(BoxLayout):
             self.buttons[screen_name] = btn
             self.add_widget(btn)
         
-        # Schedule background initialization
-        Clock.schedule_once(self.update_bg, 0.1)
+        # Schedule responsive update
+        Clock.schedule_once(self.update_responsive_properties, 0.1)
+    
+    def on_window_resize(self, *args):
+        """Called when window is resized"""
+        Clock.schedule_once(self.update_responsive_properties, 0.1)
+    
+    def update_responsive_properties(self, *args):
+        """Update menu properties based on screen size"""
+        try:
+            # Responsive height and spacing
+            self.height = ResponsiveUtils.get_bottom_menu_height()
+            
+            screen_type = ResponsiveUtils.get_screen_type()
+            if screen_type == 'mobile':
+                self.spacing = 4
+                self.padding = [8, 8, 8, 8]
+            elif screen_type == 'tablet':
+                self.spacing = 5
+                self.padding = [10, 10, 10, 10]
+            else:
+                self.spacing = 6
+                self.padding = [12, 12, 12, 12]
+            
+            # Update background
+            self.update_bg()
+        except Exception as e:
+            print(f"Error updating menu responsive properties: {e}")
     
     def update_bg(self, *args):
         """Update background rectangle"""

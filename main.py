@@ -20,6 +20,7 @@ from kivy.animation import Animation
 from utils.settings import SettingsManager
 
 from screens.menu import MenuScreen
+from screens.simple_menu import SimpleMenuScreen
 from screens.settings import SettingsScreen
 from screens.rolls import RollsScreen
 from screens.characteristics import CharacteristicsScreen
@@ -29,9 +30,9 @@ from screens.ability_checks import AbilityChecksScreen
 from screens.combat import CombatScreen
 
 # Set responsive window size with better minimum constraints
-Window.minimum_width = 900
-Window.minimum_height = 650
-Window.size = (1024, 768)
+Window.minimum_width = 320  # Allow smaller mobile screens
+Window.minimum_height = 480  # Allow smaller mobile screens
+Window.size = (1024, 768)   # Default desktop size
 
 class MainApp(App):
     def build(self):
@@ -67,14 +68,15 @@ class MainApp(App):
         
         # Add screens
         self.sm.add_widget(MenuScreen(name='menu', app=self))
+        self.sm.add_widget(SimpleMenuScreen(name='simple_menu', app=self))
         self.sm.add_widget(SettingsScreen(name='settings', app=self))
         self.sm.add_widget(RollsScreen(name='rolls', app=self))
         self.sm.add_widget(CharacteristicsScreen(name='characteristics', app=self))
         self.sm.add_widget(AbilityChecksScreen(name='ability_checks', app=self))
         self.sm.add_widget(CombatScreen(name='combat', app=self))
         
-        # Set default screen to menu
-        self.sm.current = 'menu'
+        # Set default screen to characteristics (skip the fancy menu)
+        self.sm.current = 'characteristics'
         
         return self.sm
 

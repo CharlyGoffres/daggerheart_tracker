@@ -17,6 +17,8 @@ from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.animation import Animation
 from components.bottom_menu_fixed import FixedBottomMenu
+from components.modern_button import ModernButton, ModernActionButton, ModernDangerButton, ModernSuccessButton
+from components.layout_utils import LayoutUtils
 import random
 
 class AbilityChecksScreen(Screen):
@@ -31,24 +33,11 @@ class AbilityChecksScreen(Screen):
         
         self.bind(pos=self.update_bg, size=self.update_bg)
         
-        # Main layout with bottom menu
-        main_container = BoxLayout(orientation='vertical')
+        # Create scrollable content with proper layout
+        scroll, content_area = LayoutUtils.create_scrollable_content()
         
-        # Content area
-        content_area = BoxLayout(orientation='vertical', padding=[30, 40, 30, 20], spacing=25)
-        
-        # Header
-        header = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=20)
-        
-        title = Label(
-            text='[b]🎯 CHEQUEOS DE HABILIDAD[/b]',
-            markup=True,
-            font_size=36,
-            color=get_color_from_hex('#ecf0f1'),
-            halign='center'
-        )
-        
-        header.add_widget(title)
+        # Create centered header
+        header, title = LayoutUtils.create_centered_header('[b]🎯 CHEQUEOS DE HABILIDAD[/b]')
         content_area.add_widget(header)
         
         # Ability selection card
@@ -133,13 +122,11 @@ class AbilityChecksScreen(Screen):
         content_area.add_widget(hope_card)
         
         # Roll button
-        self.roll_button = Button(
+        self.roll_button = ModernSuccessButton(
             text='🎲 TIRAR 2D12',
             font_size=24,
             size_hint_y=None,
             height=80,
-            background_color=self.rgba('#27ae60'),
-            color=self.rgba('#ffffff'),
             on_release=self.roll_ability_check
         )
         content_area.add_widget(self.roll_button)
@@ -170,11 +157,13 @@ class AbilityChecksScreen(Screen):
         self.results_card.add_widget(self.results_layout)
         content_area.add_widget(self.results_card)
         
-        main_container.add_widget(content_area)
+        # Create main container with standardized layout
+        main_container, self.bottom_menu = LayoutUtils.create_main_container(
+            self.app, scroll, FixedBottomMenu
+        )
         
-        # Add bottom menu
-        self.bottom_menu = FixedBottomMenu(self.app)
-        main_container.add_widget(self.bottom_menu)
+        # Bind responsive updates
+        LayoutUtils.bind_responsive_updates(content_area, title)
         
         self.add_widget(main_container)
     

@@ -18,6 +18,10 @@ from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.animation import Animation
 from components.bottom_menu_fixed import FixedBottomMenu
+from components.modern_button import ModernButton, ModernActionButton, ModernDangerButton, ModernSuccessButton
+from components.responsive_utils import ResponsiveUtils
+from components.responsive_layout import ResponsiveBoxLayout, ResponsiveGridLayout
+from components.layout_utils import LayoutUtils
 import random
 
 class RollsScreen(Screen):
@@ -26,6 +30,12 @@ class RollsScreen(Screen):
     def rgba(hexstr):
         c = get_color_from_hex(hexstr)
         return c if len(c) == 4 else c + [1.0] * (4 - len(c))
+    
+    @staticmethod
+    def darken_color(hex_color, factor=0.8):
+        """Darken a hex color by a factor"""
+        color = get_color_from_hex(hex_color)
+        return f"#{int(color[0]*255*factor):02x}{int(color[1]*255*factor):02x}{int(color[2]*255*factor):02x}"
 
     def __init__(self, app, **kwargs):
         super().__init__(**kwargs)
@@ -38,26 +48,11 @@ class RollsScreen(Screen):
         
         self.bind(pos=self.update_bg, size=self.update_bg)
 
-        # Main container with bottom menu
-        main_container = BoxLayout(orientation='vertical')
+        # Create scrollable content with proper layout
+        scroll, main_layout = LayoutUtils.create_scrollable_content()
         
-        # Content area with scroll
-        scroll = ScrollView()
-        main_layout = BoxLayout(orientation='vertical', padding=[30, 40, 30, 20], spacing=25, size_hint_y=None)
-        main_layout.bind(minimum_height=main_layout.setter('height'))
-
-        # Header with title
-        header = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=20)
-        
-        title = Label(
-            text='[b]🎲 TIRADAS DE DADOS[/b]',
-            markup=True,
-            font_size=36,
-            color=get_color_from_hex('#ecf0f1'),
-            halign='center'
-        )
-        
-        header.add_widget(title)
+        # Create centered header
+        header, title = LayoutUtils.create_centered_header('[b]🎲 TIRADAS DE DADOS[/b]')
         main_layout.add_widget(header)
 
         # Configuration card
@@ -161,7 +156,7 @@ class RollsScreen(Screen):
         abilities_layout.add_widget(abilities_title)
         
         # Create responsive grid with better spacing
-        grid = GridLayout(cols=2, spacing=20, size_hint_y=None, padding=[10, 5])
+        grid = ResponsiveGridLayout(auto_cols=True, size_hint_y=None)
         grid.bind(minimum_height=grid.setter('height'))
         
         self.abilities = ["Fuerza", "Destreza", "Carisma", "Constitución", "Sabiduría", "Inteligencia"]
@@ -182,12 +177,13 @@ class RollsScreen(Screen):
         abilities_card.add_widget(abilities_layout)
         main_layout.add_widget(abilities_card)
 
-        scroll.add_widget(main_layout)
-        main_container.add_widget(scroll)
+        # Create main container with standardized layout
+        main_container, self.bottom_menu = LayoutUtils.create_main_container(
+            self.app, scroll, FixedBottomMenu
+        )
         
-        # Add bottom menu
-        self.bottom_menu = FixedBottomMenu(self.app)
-        main_container.add_widget(self.bottom_menu)
+        # Bind responsive updates
+        LayoutUtils.bind_responsive_updates(main_layout, title)
         
         self.add_widget(main_container)
     
@@ -195,6 +191,11 @@ class RollsScreen(Screen):
         """Called when entering the screen"""
         super().on_enter()
         self.bottom_menu.set_active_button('rolls')
+    
+    def on_window_resize(self, *args):
+        """Called when window is resized"""
+        # This will trigger responsive updates in all responsive components
+        pass
     
     def create_card(self, bg_color):
         """Create a modern card container"""
@@ -212,30 +213,20 @@ class RollsScreen(Screen):
     
     def create_ability_button(self, text, color, callback):
         """Create a modern ability button with hover effects"""
-        btn = Button(
+        btn = ModernActionButton(
             text=text,
             font_size=18,
-            background_color=(0, 0, 0, 0),
-            color=RollsScreen.rgba('#ffffff'),
             size_hint_y=None,
             height=90,  # Increased height for better spacing
             halign='center',
             valign='middle',
-            on_release=callback
+            on_release=callback,
+            bg_color=color,
+            hover_color=self.darken_color(color)
         )
         
         # Ensure text wraps properly
         btn.bind(size=btn.setter('text_size'))
-        
-        with btn.canvas.before:
-            Color(rgba=get_color_from_hex(color))
-            btn.bg_rect = RoundedRectangle(radius=[15], pos=btn.pos, size=btn.size)
-        
-        def update_btn_bg(*args):
-            btn.bg_rect.pos = btn.pos
-            btn.bg_rect.size = btn.size
-            
-        btn.bind(pos=update_btn_bg, size=update_btn_bg)
         
         return btn
     
@@ -393,13 +384,11 @@ class RollsScreen(Screen):
         popup_content.add_widget(success_label)
         
         # Close button
-        close_btn = Button(
+        close_btn = ModernSuccessButton(
             text="✅ Cerrar",
             size_hint=(None, None),
             size=(200, 60),
-            font_size=20,
-            background_color=RollsScreen.rgba('#3498db'),
-            color=RollsScreen.rgba('#ffffff')
+            font_size=20
         )
         
         popup_content.add_widget(close_btn)

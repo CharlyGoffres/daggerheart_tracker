@@ -18,6 +18,8 @@ from kivy.utils import get_color_from_hex
 from kivy.graphics import Color, RoundedRectangle
 from kivy.clock import Clock
 from components.bottom_menu_fixed import FixedBottomMenu
+from components.modern_button import ModernButton, ModernActionButton, ModernDangerButton, ModernSuccessButton
+from components.layout_utils import LayoutUtils
 
 class SettingsScreen(Screen):
 
@@ -32,26 +34,11 @@ class SettingsScreen(Screen):
         
         self.bind(pos=self.update_bg, size=self.update_bg)
         
-        # Main container with bottom menu
-        main_container = BoxLayout(orientation='vertical')
+        # Create scrollable content with proper layout
+        scroll, main_layout = LayoutUtils.create_scrollable_content()
         
-        # Content area with scroll
-        scroll = ScrollView()
-        main_layout = BoxLayout(orientation='vertical', padding=[30, 40, 30, 20], spacing=25, size_hint_y=None)
-        main_layout.bind(minimum_height=main_layout.setter('height'))
-        
-        # Header with title
-        header = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=20)
-        
-        title = Label(
-            text='[b]⚙️ CONFIGURACIÓN[/b]',
-            markup=True,
-            font_size=36,
-            color=get_color_from_hex('#ecf0f1'),
-            halign='center'
-        )
-        
-        header.add_widget(title)
+        # Create centered header
+        header, title = LayoutUtils.create_centered_header('[b]⚙️ CONFIGURACIÓN[/b]')
         main_layout.add_widget(header)
         
         # Application settings card
@@ -155,20 +142,16 @@ class SettingsScreen(Screen):
         # Quick actions
         actions_grid = GridLayout(cols=2, spacing=15, size_hint_y=None, height=120)
         
-        reset_btn = Button(
+        reset_btn = ModernDangerButton(
             text='🔄 Resetear\nPersonaje',
             font_size=18,
-            background_color=self.rgba('#e74c3c'),
-            color=self.rgba('#ffffff'),
             on_release=self.reset_character
         )
         actions_grid.add_widget(reset_btn)
         
-        export_btn = Button(
+        export_btn = ModernActionButton(
             text='📤 Exportar\nDatos',
             font_size=18,
-            background_color=self.rgba('#3498db'),
-            color=self.rgba('#ffffff'),
             on_release=self.export_character
         )
         actions_grid.add_widget(export_btn)
@@ -202,12 +185,13 @@ class SettingsScreen(Screen):
         info_card.add_widget(info_layout)
         main_layout.add_widget(info_card)
         
-        scroll.add_widget(main_layout)
-        main_container.add_widget(scroll)
+        # Create main container with standardized layout
+        main_container, self.bottom_menu = LayoutUtils.create_main_container(
+            self.app, scroll, FixedBottomMenu
+        )
         
-        # Add bottom menu
-        self.bottom_menu = FixedBottomMenu(self.app)
-        main_container.add_widget(self.bottom_menu)
+        # Bind responsive updates
+        LayoutUtils.bind_responsive_updates(main_layout, title)
         
         self.add_widget(main_container)
     

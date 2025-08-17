@@ -16,6 +16,7 @@ from kivy.graphics import Color, RoundedRectangle, Ellipse
 from kivy.animation import Animation
 from kivy.clock import Clock
 from components.bottom_menu_fixed import FixedBottomMenu
+from components.layout_utils import LayoutUtils
 
 class ModernButton(Button):
     def __init__(self, bg_color='#3498db', hover_color='#2980b9', **kwargs):
@@ -63,17 +64,27 @@ class MenuScreen(Screen):
         
         self.bind(pos=self.update_bg, size=self.update_bg)
         
-        # Main container with bottom menu
-        main_container = BoxLayout(orientation='vertical')
+        # Create main container with standardized layout
+        main_container, self.bottom_menu = LayoutUtils.create_main_container(
+            self.app, self.create_content(), FixedBottomMenu
+        )
         
-        # Main content container
-        main_layout = BoxLayout(orientation='vertical', padding=[40, 60, 40, 20], spacing=30)
+        self.add_widget(main_container)
+    
+    def create_content(self):
+        """Create the main content area"""
+        # Main content container with responsive padding
+        main_layout = BoxLayout(
+            orientation='vertical', 
+            padding=LayoutUtils.get_content_padding(),
+            spacing=LayoutUtils.get_content_spacing()
+        )
         
-        # Header section
-        header = BoxLayout(orientation='vertical', size_hint_y=0.3, spacing=20)
+        # Header section with responsive layout
+        header = AnchorLayout(size_hint_y=0.3)
         
         # App title with shadow effect
-        title_container = AnchorLayout()
+        title_container = BoxLayout(orientation='vertical', spacing=20)
         title = Label(
             text='[b]DAGGERHEART[/b]\n[color=#f1c40f]⚔️ TRACKER ⚔️[/color]',
             markup=True,
@@ -84,7 +95,6 @@ class MenuScreen(Screen):
             text_size=(None, None)
         )
         title_container.add_widget(title)
-        header.add_widget(title_container)
         
         # Subtitle
         subtitle = Label(
@@ -93,12 +103,14 @@ class MenuScreen(Screen):
             color=get_color_from_hex('#ecf0f1'),
             halign='center'
         )
-        header.add_widget(subtitle)
+        title_container.add_widget(subtitle)
+        header.add_widget(title_container)
         
         main_layout.add_widget(header)
         
-        # Navigation cards
-        nav_container = BoxLayout(orientation='vertical', size_hint_y=0.6, spacing=20)
+        # Navigation cards with better centering
+        nav_container = AnchorLayout(size_hint_y=0.6)
+        nav_layout = BoxLayout(orientation='vertical', spacing=20, size_hint=(0.9, 1))
         
         # Create navigation buttons with icons and descriptions
         nav_buttons = [
@@ -129,11 +141,12 @@ class MenuScreen(Screen):
                 btn_data['color'],
                 lambda x, screen=btn_data['screen']: self.app.switch_screen(screen, 'left')
             )
-            nav_container.add_widget(nav_card)
+            nav_layout.add_widget(nav_card)
         
+        nav_container.add_widget(nav_layout)
         main_layout.add_widget(nav_container)
         
-        # Footer with exit button
+        # Footer with exit button - properly centered
         footer = AnchorLayout(size_hint_y=0.1)
         exit_btn = ModernButton(
             text='💀 Salir del Juego',
@@ -147,6 +160,8 @@ class MenuScreen(Screen):
         )
         footer.add_widget(exit_btn)
         main_layout.add_widget(footer)
+        
+        return main_layout
         
         main_container.add_widget(main_layout)
         

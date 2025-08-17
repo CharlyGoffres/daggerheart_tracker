@@ -22,6 +22,7 @@ class BottomMenuButton(Button):
         self.background_color = (0, 0, 0, 0)  # Transparent
         self.size_hint_y = None
         self.height = 80
+        self.markup = True
         
         # Create visual elements
         with self.canvas.before:
@@ -29,20 +30,22 @@ class BottomMenuButton(Button):
             self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[10])
         
         # Button content
-        layout = BoxLayout(orientation='vertical', spacing=5)
+        layout = BoxLayout(orientation='vertical', spacing=2, padding=5)
         
         icon_label = Label(
             text=icon,
-            font_size=24,
+            font_size=28,
             color=get_color_from_hex('#ecf0f1'),
-            size_hint_y=0.6
+            size_hint_y=0.6,
+            markup=True
         )
         
         text_label = Label(
             text=text,
-            font_size=12,
+            font_size=14,
             color=get_color_from_hex('#bdc3c7'),
-            size_hint_y=0.4
+            size_hint_y=0.4,
+            markup=True
         )
         
         layout.add_widget(icon_label)
@@ -74,14 +77,13 @@ class BottomMenuButton(Button):
     
     def set_active(self, active=True):
         """Set button as active/inactive"""
-        if active:
-            with self.canvas.before:
+        self.canvas.before.clear()
+        with self.canvas.before:
+            if active:
                 Color(rgba=get_color_from_hex('#3498db'))
-                self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[10])
-        else:
-            with self.canvas.before:
+            else:
                 Color(rgba=get_color_from_hex('#34495e'))
-                self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[10])
+            self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[10])
 
 class BottomMenu(BoxLayout):
     def __init__(self, app, **kwargs):
@@ -89,14 +91,14 @@ class BottomMenu(BoxLayout):
         self.app = app
         self.orientation = 'horizontal'
         self.size_hint_y = None
-        self.height = 100
-        self.spacing = 5
-        self.padding = [10, 10, 10, 10]
+        self.height = 120
+        self.spacing = 8
+        self.padding = [15, 15, 15, 15]
         
         # Menu background
         with self.canvas.before:
             Color(rgba=get_color_from_hex('#2c3e50'))
-            self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[15, 15, 0, 0])
+            self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[20, 20, 0, 0])
         
         self.bind(pos=self.update_bg, size=self.update_bg)
         

@@ -15,6 +15,7 @@ from kivy.utils import get_color_from_hex
 from kivy.graphics import Color, RoundedRectangle, Ellipse
 from kivy.animation import Animation
 from kivy.clock import Clock
+from components.bottom_menu import BottomMenu
 
 class ModernButton(Button):
     def __init__(self, bg_color='#3498db', hover_color='#2980b9', **kwargs):
@@ -62,8 +63,11 @@ class MenuScreen(Screen):
         
         self.bind(pos=self.update_bg, size=self.update_bg)
         
-        # Main container
-        main_layout = BoxLayout(orientation='vertical', padding=[40, 60, 40, 40], spacing=30)
+        # Main container with bottom menu
+        main_container = BoxLayout(orientation='vertical')
+        
+        # Main content container
+        main_layout = BoxLayout(orientation='vertical', padding=[40, 60, 40, 20], spacing=30)
         
         # Header section
         header = BoxLayout(orientation='vertical', size_hint_y=0.3, spacing=20)
@@ -144,7 +148,21 @@ class MenuScreen(Screen):
         footer.add_widget(exit_btn)
         main_layout.add_widget(footer)
         
-        self.add_widget(main_layout)
+        main_container.add_widget(main_layout)
+        
+        # Add bottom menu
+        self.bottom_menu = BottomMenu(self.app)
+        main_container.add_widget(self.bottom_menu)
+        
+        self.add_widget(main_container)
+    
+    def on_enter(self):
+        """Called when entering the screen"""
+        super().on_enter()
+        if hasattr(self, 'bottom_menu'):
+            # Don't highlight any button on the main menu
+            for button in self.bottom_menu.buttons.values():
+                button.set_active(False)
     
     def create_nav_card(self, title, subtitle, color, callback):
         """Create a modern navigation card"""

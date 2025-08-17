@@ -25,11 +25,13 @@ from screens.rolls import RollsScreen
 from screens.characteristics import CharacteristicsScreen
 from screens.ability_checks import AbilityChecksScreen
 from screens.combat import CombatScreen
+from screens.ability_checks import AbilityChecksScreen
+from screens.combat import CombatScreen
 
 # Set responsive window size
 Window.size = (1024, 768)
-Window.minimum_width = 800
-Window.minimum_height = 600
+Window.minimum_width = 1024
+Window.minimum_height = 768
 
 class MainApp(App):
     def build(self):
@@ -70,6 +72,9 @@ class MainApp(App):
         self.sm.add_widget(CharacteristicsScreen(name='characteristics', app=self))
         self.sm.add_widget(AbilityChecksScreen(name='ability_checks', app=self))
         self.sm.add_widget(CombatScreen(name='combat', app=self))
+        
+        # Set default screen to menu
+        self.sm.current = 'menu'
         
         return self.sm
 

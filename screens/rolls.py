@@ -1,7 +1,6 @@
 """
-RollsScreen: Allows user to roll dice for abilities (2d12) and display results.
+RollsScreen: Modern dice rolling interface with beautiful animations and responsive design
 """
-
 
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -13,9 +12,10 @@ from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.popup import Popup
-from kivy.graphics import Color, RoundedRectangle
+from kivy.graphics import Color, RoundedRectangle, Line
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
+from kivy.animation import Animation
 import random
 
 class RollsScreen(Screen):
@@ -28,100 +28,204 @@ class RollsScreen(Screen):
     def __init__(self, app, **kwargs):
         super().__init__(**kwargs)
         self.app = app
-        Window.clearcolor = get_color_from_hex('#eaf6fb')
+        
+        # Create gradient background
+        with self.canvas.before:
+            Color(rgba=get_color_from_hex('#2c3e50'))
+            self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size)
+        
+        self.bind(pos=self.update_bg, size=self.update_bg)
 
-        # Card-style container
-        card = BoxLayout(orientation='vertical', spacing=12, padding=[30, 20, 30, 20], size_hint=(None, None), size=(650, 520), pos_hint={'center_x': 0.5, 'center_y': 0.5})
-        with card.canvas.before:
-            Color(rgba=get_color_from_hex('#ffffffcc'))
-            self.bg_rect = RoundedRectangle(radius=[30], pos=card.pos, size=card.size)
-        def update_bg_rect(*args):
-            self.bg_rect.pos = card.pos
-            self.bg_rect.size = card.size
-        card.bind(pos=update_bg_rect, size=update_bg_rect)
+        # Main scrollable container
+        main_layout = BoxLayout(orientation='vertical', padding=[30, 40, 30, 40], spacing=25)
 
-        # Title
-        title = Label(text="[b]Tiradas de Habilidad[/b]", markup=True, font_size=38, color=get_color_from_hex('#1b4965'))
-        card.add_widget(title)
+        # Header with title and back button
+        header = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=20)
+        
+        back_btn = Button(
+            text='← Volver',
+            font_size=20,
+            size_hint=(None, None),
+            size=(120, 50),
+            background_color=RollsScreen.rgba('#34495e'),
+            color=RollsScreen.rgba('#ecf0f1'),
+            on_release=lambda x: self.app.switch_screen('menu', 'right')
+        )
+        
+        title = Label(
+            text='[b]🎲 TIRADAS DE DADOS[/b]',
+            markup=True,
+            font_size=36,
+            color=get_color_from_hex('#ecf0f1'),
+            halign='center'
+        )
+        
+        header.add_widget(back_btn)
+        header.add_widget(title)
+        header.add_widget(Widget(size_hint_x=None, width=120))  # Spacer for symmetry
+        
+        main_layout.add_widget(header)
 
-        # Roll type selection
+        # Configuration card
+        config_card = self.create_card('#34495e')
+        config_layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
+        
+        config_title = Label(
+            text='[b]Configuración de Tirada[/b]',
+            markup=True,
+            font_size=24,
+            color=get_color_from_hex('#ecf0f1'),
+            size_hint_y=None,
+            height=40
+        )
+        config_layout.add_widget(config_title)
+
+        # Roll type selection with modern styling
+        roll_type_layout = BoxLayout(orientation='horizontal', spacing=15, size_hint_y=None, height=50)
+        roll_type_layout.add_widget(Label(
+            text='Tipo:', 
+            font_size=18, 
+            color=get_color_from_hex('#bdc3c7'),
+            size_hint_x=0.3
+        ))
+        
         self.roll_type = Spinner(
             text='Normal',
             values=('Normal', 'Ventaja', 'Desventaja', 'Doble Ventaja', 'Triple Ventaja'),
-            size_hint=(None, None),
-            size=(260, 44),
-            background_color=RollsScreen.rgba('#62b6cb'),
-            color=RollsScreen.rgba('#1b4965'),
-            font_size=22
+            size_hint_x=0.7,
+            background_color=RollsScreen.rgba('#3498db'),
+            color=RollsScreen.rgba('#ffffff'),
+            font_size=18
         )
-        card.add_widget(Label(text='Tipo de tirada:', font_size=20, color=get_color_from_hex('#1b4965'), size_hint_y=None, height=28))
-        card.add_widget(self.roll_type)
+        roll_type_layout.add_widget(self.roll_type)
+        config_layout.add_widget(roll_type_layout)
 
         # Modifier selection
+        modifier_layout = BoxLayout(orientation='horizontal', spacing=15, size_hint_y=None, height=50)
+        modifier_layout.add_widget(Label(
+            text='Modificador:', 
+            font_size=18, 
+            color=get_color_from_hex('#bdc3c7'),
+            size_hint_x=0.3
+        ))
+        
         self.modifier = Spinner(
             text='Sin modificador',
             values=('Sin modificador', '+1', '+2', '1d4'),
-            size_hint=(None, None),
-            size=(260, 44),
-            background_color=RollsScreen.rgba('#97c1a9'),
-            color=RollsScreen.rgba('#1b4965'),
-            font_size=22
+            size_hint_x=0.7,
+            background_color=RollsScreen.rgba('#27ae60'),
+            color=RollsScreen.rgba('#ffffff'),
+            font_size=18
         )
-        card.add_widget(Label(text='Modificador:', font_size=20, color=get_color_from_hex('#1b4965'), size_hint_y=None, height=28))
-        card.add_widget(self.modifier)
+        modifier_layout.add_widget(self.modifier)
+        config_layout.add_widget(modifier_layout)
+        
+        config_card.add_widget(config_layout)
+        main_layout.add_widget(config_card)
 
-        # Result label
-        self.result_label = Label(text="Selecciona una habilidad para tirar 2d12", font_size=24, color=get_color_from_hex('#1b4965'))
-        card.add_widget(self.result_label)
+        # Results display card
+        results_card = self.create_card('#2c3e50')
+        results_layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
+        
+        self.result_label = Label(
+            text='Selecciona una habilidad para comenzar',
+            font_size=20,
+            color=get_color_from_hex('#ecf0f1'),
+            halign='center'
+        )
+        results_layout.add_widget(self.result_label)
 
+        # Animated dice display
+        self.dice_label = Label(
+            text='🎲 🎲',
+            font_size=64,
+            color=RollsScreen.rgba('#f39c12'),
+            halign='center'
+        )
+        results_layout.add_widget(self.dice_label)
+        
+        results_card.add_widget(results_layout)
+        main_layout.add_widget(results_card)
 
-        # Dice animation area
-        self.dice_label = Label(text='', font_size=48, color=RollsScreen.rgba('#1b4965'))
-        card.add_widget(self.dice_label)
-
-        # Abilities grid
-        self.abilities = ["Fuerza", "Destreza", "Carisma", "Constitución", "Sabiduría", "Inteligencia"]
-        grid = GridLayout(cols=2, spacing=16, size_hint_y=None)
+        # Abilities grid with beautiful cards
+        abilities_card = self.create_card('#34495e')
+        abilities_layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
+        
+        abilities_title = Label(
+            text='[b]Habilidades del Personaje[/b]',
+            markup=True,
+            font_size=24,
+            color=get_color_from_hex('#ecf0f1'),
+            size_hint_y=None,
+            height=40
+        )
+        abilities_layout.add_widget(abilities_title)
+        
+        # Create responsive grid
+        grid = GridLayout(cols=2, spacing=15, size_hint_y=None)
         grid.bind(minimum_height=grid.setter('height'))
-        btn_colors = ['#62b6cb', '#97c1a9', '#f3c677', '#f4978e', '#b388eb', '#ffb4a2']
+        
+        self.abilities = ["Fuerza", "Destreza", "Carisma", "Constitución", "Sabiduría", "Inteligencia"]
+        btn_colors = ['#e74c3c', '#3498db', '#9b59b6', '#e67e22', '#27ae60', '#f39c12']
+        
         for i, ability in enumerate(self.abilities):
-            btn = Button(
-                text=f'🎲 {ability}',
-                font_size=28,
-                background_color=RollsScreen.rgba(btn_colors[i]),
-                color=RollsScreen.rgba('#1b4965'),
-                size_hint_y=None,
-                height=70,
-                on_release=self.roll_ability
+            ability_mod = self.app.character['abilities'].get(ability, 0)
+            mod_text = f"{ability_mod:+d}" if ability_mod != 0 else "0"
+            
+            btn = self.create_ability_button(
+                f'{ability}\n({mod_text})',
+                btn_colors[i],
+                self.roll_ability
             )
             grid.add_widget(btn)
-        card.add_widget(grid)
+        
+        abilities_layout.add_widget(grid)
+        abilities_card.add_widget(abilities_layout)
+        main_layout.add_widget(abilities_card)
 
-        # Spacer
-        card.add_widget(Widget(size_hint_y=0.2))
-
-        # Back button (prominent)
-        back_anchor = AnchorLayout(anchor_x='center', anchor_y='bottom')
-        back_btn = Button(
-            text='⏪ Volver al Menú',
-            font_size=26,
-            size_hint=(None, None),
-            size=(320, 60),
-            background_color=RollsScreen.rgba('#62b6cb'),
+        
+        self.add_widget(main_layout)
+    
+    def create_card(self, bg_color):
+        """Create a modern card container"""
+        card = BoxLayout(orientation='vertical')
+        with card.canvas.before:
+            Color(rgba=get_color_from_hex(bg_color) + [0.9])
+            self.card_rect = RoundedRectangle(radius=[20], pos=card.pos, size=card.size)
+        
+        card.bind(pos=lambda *args: setattr(self.card_rect, 'pos', card.pos),
+                 size=lambda *args: setattr(self.card_rect, 'size', card.size))
+        return card
+    
+    def create_ability_button(self, text, color, callback):
+        """Create a modern ability button with hover effects"""
+        btn = Button(
+            text=text,
+            font_size=20,
+            background_color=(0, 0, 0, 0),
             color=RollsScreen.rgba('#ffffff'),
-            on_release=lambda x: self.app.switch_screen('menu')
+            size_hint_y=None,
+            height=80,
+            on_release=callback
         )
-        back_anchor.add_widget(back_btn)
-        card.add_widget(back_anchor)
-
-        # Center the card
-        root = AnchorLayout()
-        root.add_widget(card)
-        self.add_widget(root)
+        
+        with btn.canvas.before:
+            Color(rgba=get_color_from_hex(color))
+            btn.bg_rect = RoundedRectangle(radius=[15], pos=btn.pos, size=btn.size)
+        
+        btn.bind(pos=lambda *args: setattr(btn.bg_rect, 'pos', btn.pos),
+                size=lambda *args: setattr(btn.bg_rect, 'size', btn.size))
+        
+        return btn
+    
+    def update_bg(self, *args):
+        self.bg_rect.pos = self.pos
+        self.bg_rect.size = self.size
 
     def roll_ability(self, instance):
-        ability = instance.text.replace('🎲 ', '')
-        mod = self.app.character.get(ability, 0)
+        # Extract ability name from button text
+        ability_text = instance.text.split('\n')[0]  # Get first line before modifier
+        mod = self.app.character['abilities'].get(ability_text, 0)
         roll_type = self.roll_type.text
         mod_text = self.modifier.text
 
@@ -156,23 +260,32 @@ class RollsScreen(Screen):
             extra = random.randint(1, 4)
             extra_text = f' + 1d4({extra})'
 
-        # Animate dice
-        self.animate_dice(dice, ability, mod, extra, extra_text)
+        # Animate dice with enhanced visuals
+        self.animate_dice(dice, ability_text, mod, extra, extra_text)
 
     def animate_dice(self, dice, ability, mod, extra, extra_text):
-        # Show rolling animation
-        self.dice_label.text = '🎲 Rodando...'
-        self.result_label.text = ''
-        self._anim_frames = 12
+        # Enhanced rolling animation with color changes
+        self.dice_label.text = '🎲 Rodando... 🎲'
+        self.dice_label.color = RollsScreen.rgba('#f39c12')
+        self.result_label.text = f'Tirando {ability}...'
+        
+        # Create rolling animation
+        self._anim_frames = 15
         self._anim_count = 0
         self._final = (dice, ability, mod, extra, extra_text)
-        Clock.schedule_interval(self._dice_anim_frame, 0.07)
+        Clock.schedule_interval(self._dice_anim_frame, 0.08)
 
     def _dice_anim_frame(self, dt):
         if self._anim_count < self._anim_frames:
             d1 = random.randint(1, 12)
             d2 = random.randint(1, 12)
+            
+            # Change color during animation
+            colors = ['#e74c3c', '#f39c12', '#27ae60', '#3498db', '#9b59b6']
+            color = colors[self._anim_count % len(colors)]
+            self.dice_label.color = RollsScreen.rgba(color)
             self.dice_label.text = f'🎲 {d1}   🎲 {d2}'
+            
             self._anim_count += 1
             return True
         else:
@@ -180,15 +293,101 @@ class RollsScreen(Screen):
             dice, ability, mod, extra, extra_text = self._final
             total = sum(dice) + mod + extra
             mod_str = f' + {mod}' if mod else ''
+            
+            # Final result with success indication
+            result_color = '#27ae60' if total >= 15 else '#e74c3c' if total <= 9 else '#f39c12'
+            self.dice_label.color = RollsScreen.rgba(result_color)
             self.dice_label.text = f'🎲 {dice[0]}   🎲 {dice[1]}'
-            # Show popup with result
-            popup_content = BoxLayout(orientation='vertical', spacing=10, padding=20)
-            popup_content.add_widget(Label(text=f"[b]{ability}[/b]", markup=True, font_size=28, color=RollsScreen.rgba('#1b4965')))
-            popup_content.add_widget(Label(text=f"🎲 {dice[0]} + {dice[1]}{mod_str}{extra_text} = [b]{total}[/b]", markup=True, font_size=36, color=RollsScreen.rgba('#1b4965')))
-            close_btn = Button(text="Cerrar", size_hint=(1, 0.5), font_size=22, background_color=RollsScreen.rgba('#62b6cb'), color=RollsScreen.rgba('#ffffff'))
-            popup_content.add_widget(close_btn)
-            popup = Popup(title="Resultado de la Tirada", content=popup_content, size_hint=(None, None), size=(440, 320), auto_dismiss=False)
-            close_btn.bind(on_release=popup.dismiss)
-            popup.open()
-            self.result_label.text = f"{ability}: {dice[0]} + {dice[1]}{mod_str}{extra_text} = {total}"
+            
+            # Show enhanced popup with result analysis
+            self.show_result_popup(ability, dice, mod, extra, extra_text, total)
+            
+            # Update result display
+            success_text = ""
+            if total >= self.app.character['thresholds']['severe']:
+                success_text = " [color=#27ae60](ÉXITO CRÍTICO!)[/color]"
+            elif total >= self.app.character['thresholds']['major']:
+                success_text = " [color=#27ae60](Éxito Mayor)[/color]"
+            elif total >= self.app.character['thresholds']['minor']:
+                success_text = " [color=#f39c12](Éxito Menor)[/color]"
+            else:
+                success_text = " [color=#e74c3c](Fallo)[/color]"
+            
+            self.result_label.text = f"[b]{ability}[/b]: {dice[0]} + {dice[1]}{mod_str}{extra_text} = [b]{total}[/b]{success_text}"
+            self.result_label.markup = True
             return False
+    
+    def show_result_popup(self, ability, dice, mod, extra, extra_text, total):
+        """Show an enhanced result popup with beautiful styling"""
+        popup_content = BoxLayout(orientation='vertical', spacing=20, padding=30)
+        
+        # Background
+        with popup_content.canvas.before:
+            Color(rgba=get_color_from_hex('#2c3e50'))
+            popup_content.bg_rect = RoundedRectangle(radius=[20], pos=popup_content.pos, size=popup_content.size)
+        
+        popup_content.bind(pos=lambda *args: setattr(popup_content.bg_rect, 'pos', popup_content.pos),
+                          size=lambda *args: setattr(popup_content.bg_rect, 'size', popup_content.size))
+        
+        # Title
+        title_label = Label(
+            text=f"[b]💫 {ability} 💫[/b]",
+            markup=True,
+            font_size=32,
+            color=RollsScreen.rgba('#ecf0f1')
+        )
+        popup_content.add_widget(title_label)
+        
+        # Dice result
+        mod_str = f' + {mod}' if mod else ''
+        dice_label = Label(
+            text=f"🎲 {dice[0]} + {dice[1]}{mod_str}{extra_text}",
+            font_size=24,
+            color=RollsScreen.rgba('#f39c12')
+        )
+        popup_content.add_widget(dice_label)
+        
+        # Total with styling
+        total_label = Label(
+            text=f"[b]TOTAL: {total}[/b]",
+            markup=True,
+            font_size=36,
+            color=RollsScreen.rgba('#e74c3c' if total <= 9 else '#f39c12' if total < 15 else '#27ae60')
+        )
+        popup_content.add_widget(total_label)
+        
+        # Success indicator
+        if total >= self.app.character['thresholds']['severe']:
+            success_label = Label(text="🌟 ÉXITO CRÍTICO! 🌟", font_size=24, color=RollsScreen.rgba('#27ae60'))
+        elif total >= self.app.character['thresholds']['major']:
+            success_label = Label(text="⭐ Éxito Mayor ⭐", font_size=20, color=RollsScreen.rgba('#27ae60'))
+        elif total >= self.app.character['thresholds']['minor']:
+            success_label = Label(text="✨ Éxito Menor ✨", font_size=18, color=RollsScreen.rgba('#f39c12'))
+        else:
+            success_label = Label(text="💥 Fallo 💥", font_size=18, color=RollsScreen.rgba('#e74c3c'))
+        
+        popup_content.add_widget(success_label)
+        
+        # Close button
+        close_btn = Button(
+            text="✅ Cerrar",
+            size_hint=(None, None),
+            size=(200, 60),
+            font_size=20,
+            background_color=RollsScreen.rgba('#3498db'),
+            color=RollsScreen.rgba('#ffffff')
+        )
+        
+        popup_content.add_widget(close_btn)
+        
+        popup = Popup(
+            title="",
+            content=popup_content,
+            size_hint=(None, None),
+            size=(500, 400),
+            auto_dismiss=False,
+            separator_height=0
+        )
+        
+        close_btn.bind(on_release=popup.dismiss)
+        popup.open()

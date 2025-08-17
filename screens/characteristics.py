@@ -1,6 +1,6 @@
 # screens/characteristics.py
 """
-CharacteristicsScreen: Character sheet showing abilities, HP, and other stats.
+CharacteristicsScreen: Beautiful character sheet with modern design and responsive layout
 """
 
 from kivy.uix.screenmanager import Screen
@@ -10,192 +10,390 @@ from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
-from kivy.graphics import Color, RoundedRectangle
+from kivy.graphics import Color, RoundedRectangle, Line
 
 class CharacteristicsScreen(Screen):
     def __init__(self, app, **kwargs):
         super().__init__(**kwargs)
         self.app = app
-        Window.clearcolor = get_color_from_hex('#eaf6fb')
         
-        # Main container
-        main_layout = BoxLayout(orientation='vertical', padding=20, spacing=15)
+        # Create gradient background
+        with self.canvas.before:
+            Color(rgba=get_color_from_hex('#1a252f'))
+            self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size)
         
-        # Title
-        title = Label(
-            text='[b]Ficha de Personaje[/b]', 
-            markup=True, 
-            font_size=36, 
-            color=get_color_from_hex('#1b4965'),
-            size_hint_y=None,
-            height=60
+        self.bind(pos=self.update_bg, size=self.update_bg)
+        
+        # Main scrollable container
+        scroll = ScrollView()
+        main_layout = BoxLayout(orientation='vertical', padding=[30, 40, 30, 40], spacing=25, size_hint_y=None)
+        main_layout.bind(minimum_height=main_layout.setter('height'))
+        
+        # Header with title and back button
+        header = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=20)
+        
+        back_btn = Button(
+            text='← Volver',
+            font_size=20,
+            size_hint=(None, None),
+            size=(120, 50),
+            background_color=self.rgba('#34495e'),
+            color=self.rgba('#ecf0f1'),
+            on_release=lambda x: self.app.switch_screen('menu', 'right')
         )
-        main_layout.add_widget(title)
         
-        # Character abilities section
-        abilities_card = self.create_card()
-        abilities_layout = BoxLayout(orientation='vertical', spacing=10)
+        title = Label(
+            text='[b]⚔️ FICHA DE PERSONAJE[/b]',
+            markup=True,
+            font_size=36,
+            color=get_color_from_hex('#ecf0f1'),
+            halign='center'
+        )
+        
+        header.add_widget(back_btn)
+        header.add_widget(title)
+        header.add_widget(BoxLayout(size_hint_x=None, width=120))  # Spacer
+        
+        main_layout.add_widget(header)
+        
+        # Character identity card
+        identity_card = self.create_card('#2c3e50')
+        identity_layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
+        
+        identity_title = Label(
+            text='[b]Información del Personaje[/b]',
+            markup=True,
+            font_size=24,
+            color=get_color_from_hex('#ecf0f1'),
+            size_hint_y=None,
+            height=40
+        )
+        identity_layout.add_widget(identity_title)
+        
+        # Character basic info in grid
+        info_grid = GridLayout(cols=2, spacing=15, size_hint_y=None, height=120)
+        
+        # Name input
+        info_grid.add_widget(Label(text='Nombre:', font_size=18, color=get_color_from_hex('#bdc3c7')))
+        self.name_input = TextInput(
+            text=self.app.character['name'],
+            font_size=18,
+            multiline=False,
+            background_color=self.rgba('#34495e'),
+            foreground_color=self.rgba('#ecf0f1'),
+            size_hint_y=None,
+            height=40
+        )
+        info_grid.add_widget(self.name_input)
+        
+        # Class input
+        info_grid.add_widget(Label(text='Clase:', font_size=18, color=get_color_from_hex('#bdc3c7')))
+        self.class_input = TextInput(
+            text=self.app.character['class'],
+            font_size=18,
+            multiline=False,
+            background_color=self.rgba('#34495e'),
+            foreground_color=self.rgba('#ecf0f1'),
+            size_hint_y=None,
+            height=40
+        )
+        info_grid.add_widget(self.class_input)
+        
+        # Level input
+        info_grid.add_widget(Label(text='Nivel:', font_size=18, color=get_color_from_hex('#bdc3c7')))
+        self.level_input = TextInput(
+            text=str(self.app.character['level']),
+            font_size=18,
+            multiline=False,
+            background_color=self.rgba('#34495e'),
+            foreground_color=self.rgba('#ecf0f1'),
+            size_hint_y=None,
+            height=40
+        )
+        info_grid.add_widget(self.level_input)
+        
+        identity_layout.add_widget(info_grid)
+        identity_card.add_widget(identity_layout)
+        main_layout.add_widget(identity_card)
+        
+        # Health and resources card
+        health_card = self.create_card('#c0392b', 0.1)
+        health_layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
+        
+        health_title = Label(
+            text='[b]❤️ Salud y Recursos[/b]',
+            markup=True,
+            font_size=24,
+            color=get_color_from_hex('#ecf0f1'),
+            size_hint_y=None,
+            height=40
+        )
+        health_layout.add_widget(health_title)
+        
+        # HP section
+        hp_section = BoxLayout(orientation='horizontal', spacing=15, size_hint_y=None, height=60)
+        
+        hp_label = Label(
+            text='Puntos de Vida:',
+            font_size=20,
+            color=get_color_from_hex('#ecf0f1'),
+            size_hint_x=0.4
+        )
+        hp_section.add_widget(hp_label)
+        
+        # Current HP
+        self.hp_current_input = TextInput(
+            text=str(self.app.character['hp_current']),
+            font_size=24,
+            multiline=False,
+            background_color=self.rgba('#e74c3c'),
+            foreground_color=self.rgba('#ffffff'),
+            size_hint_x=0.25,
+            halign='center'
+        )
+        hp_section.add_widget(self.hp_current_input)
+        
+        hp_section.add_widget(Label(text='/', font_size=24, color=get_color_from_hex('#ecf0f1'), size_hint_x=0.1))
+        
+        # Max HP
+        self.hp_max_input = TextInput(
+            text=str(self.app.character['hp_max']),
+            font_size=24,
+            multiline=False,
+            background_color=self.rgba('#27ae60'),
+            foreground_color=self.rgba('#ffffff'),
+            size_hint_x=0.25,
+            halign='center'
+        )
+        hp_section.add_widget(self.hp_max_input)
+        
+        health_layout.add_widget(hp_section)
+        
+        # Armor section
+        armor_section = BoxLayout(orientation='horizontal', spacing=15, size_hint_y=None, height=50)
+        armor_section.add_widget(Label(text='🛡️ Armadura:', font_size=18, color=get_color_from_hex('#ecf0f1')))
+        
+        self.armor_input = TextInput(
+            text=str(self.app.character['armor']),
+            font_size=18,
+            multiline=False,
+            background_color=self.rgba('#95a5a6'),
+            foreground_color=self.rgba('#2c3e50'),
+            size_hint_x=0.3
+        )
+        armor_section.add_widget(self.armor_input)
+        armor_section.add_widget(BoxLayout())  # Spacer
+        
+        health_layout.add_widget(armor_section)
+        health_card.add_widget(health_layout)
+        main_layout.add_widget(health_card)
+        
+        # Abilities card
+        abilities_card = self.create_card('#27ae60', 0.1)
+        abilities_layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
         
         abilities_title = Label(
-            text='[b]Habilidades[/b]', 
-            markup=True, 
-            font_size=24, 
-            color=get_color_from_hex('#1b4965'),
+            text='[b]⚡ Habilidades[/b]',
+            markup=True,
+            font_size=24,
+            color=get_color_from_hex('#ecf0f1'),
             size_hint_y=None,
             height=40
         )
         abilities_layout.add_widget(abilities_title)
         
         # Abilities grid
-        abilities_grid = GridLayout(cols=2, spacing=10, size_hint_y=None)
+        abilities_grid = GridLayout(cols=2, spacing=15, size_hint_y=None)
         abilities_grid.bind(minimum_height=abilities_grid.setter('height'))
         
-        for ability, modifier in self.app.character.items():
-            ability_row = BoxLayout(orientation='horizontal', spacing=10, size_hint_y=None, height=40)
-            
-            ability_label = Label(
-                text=f'{ability}:', 
-                font_size=20, 
-                color=get_color_from_hex('#1b4965'),
-                size_hint_x=0.7
-            )
-            
-            modifier_label = Label(
-                text=f'{modifier:+d}' if modifier != 0 else '0',
-                font_size=20,
-                color=get_color_from_hex('#1b4965'),
-                size_hint_x=0.3
-            )
-            
-            ability_row.add_widget(ability_label)
-            ability_row.add_widget(modifier_label)
-            abilities_grid.add_widget(ability_row)
+        self.ability_inputs = {}
+        ability_colors = {
+            'Fuerza': '#e74c3c',
+            'Destreza': '#f39c12', 
+            'Carisma': '#9b59b6',
+            'Constitución': '#27ae60',
+            'Sabiduría': '#3498db',
+            'Inteligencia': '#95a5a6'
+        }
+        
+        for ability, modifier in self.app.character['abilities'].items():
+            ability_card = self.create_ability_card(ability, modifier, ability_colors.get(ability, '#34495e'))
+            abilities_grid.add_widget(ability_card)
         
         abilities_layout.add_widget(abilities_grid)
         abilities_card.add_widget(abilities_layout)
         main_layout.add_widget(abilities_card)
         
-        # Character stats section (HP, Armor, etc.)
-        stats_card = self.create_card()
-        stats_layout = BoxLayout(orientation='vertical', spacing=10)
+        # Thresholds card
+        thresholds_card = self.create_card('#8e44ad', 0.1)
+        thresholds_layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
         
-        stats_title = Label(
-            text='[b]Estadísticas[/b]', 
-            markup=True, 
-            font_size=24, 
-            color=get_color_from_hex('#1b4965'),
+        thresholds_title = Label(
+            text='[b]🎯 Umbrales de Dificultad[/b]',
+            markup=True,
+            font_size=24,
+            color=get_color_from_hex('#ecf0f1'),
             size_hint_y=None,
             height=40
         )
-        stats_layout.add_widget(stats_title)
+        thresholds_layout.add_widget(thresholds_title)
         
-        # Basic stats
-        hp_layout = BoxLayout(orientation='horizontal', spacing=10, size_hint_y=None, height=40)
-        hp_layout.add_widget(Label(text='Puntos de Vida:', font_size=18, color=get_color_from_hex('#1b4965')))
-        self.hp_input = TextInput(
-            text='30',
-            font_size=18,
-            multiline=False,
-            size_hint_x=0.3,
-            background_color=get_color_from_hex('#ffffff'),
-            foreground_color=get_color_from_hex('#1b4965')
-        )
-        hp_layout.add_widget(self.hp_input)
-        stats_layout.add_widget(hp_layout)
+        # Thresholds grid
+        thresholds_grid = GridLayout(cols=3, spacing=15, size_hint_y=None, height=80)
         
-        armor_layout = BoxLayout(orientation='horizontal', spacing=10, size_hint_y=None, height=40)
-        armor_layout.add_widget(Label(text='Armadura:', font_size=18, color=get_color_from_hex('#1b4965')))
-        self.armor_input = TextInput(
-            text='12',
-            font_size=18,
-            multiline=False,
-            size_hint_x=0.3,
-            background_color=get_color_from_hex('#ffffff'),
-            foreground_color=get_color_from_hex('#1b4965')
-        )
-        armor_layout.add_widget(self.armor_input)
-        stats_layout.add_widget(armor_layout)
+        threshold_data = [
+            ('Menor', self.app.character['thresholds']['minor'], '#f39c12'),
+            ('Mayor', self.app.character['thresholds']['major'], '#e67e22'),
+            ('Severo', self.app.character['thresholds']['severe'], '#c0392b')
+        ]
         
-        stats_card.add_widget(stats_layout)
-        main_layout.add_widget(stats_card)
+        for name, value, color in threshold_data:
+            threshold_box = BoxLayout(orientation='vertical', spacing=5)
+            
+            threshold_label = Label(
+                text=name,
+                font_size=16,
+                color=get_color_from_hex('#ecf0f1'),
+                size_hint_y=None,
+                height=25
+            )
+            
+            threshold_value = Label(
+                text=str(value),
+                font_size=28,
+                color=get_color_from_hex(color),
+                size_hint_y=None,
+                height=45
+            )
+            
+            threshold_box.add_widget(threshold_label)
+            threshold_box.add_widget(threshold_value)
+            thresholds_grid.add_widget(threshold_box)
         
-        # Buttons
-        button_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=None, height=60)
+        thresholds_layout.add_widget(thresholds_grid)
+        thresholds_card.add_widget(thresholds_layout)
+        main_layout.add_widget(thresholds_card)
         
+        # Save button
         save_btn = Button(
-            text='💾 Guardar',
-            font_size=24,
-            background_color=self.rgba('#97c1a9'),
+            text='💾 Guardar Cambios',
+            font_size=22,
+            size_hint=(None, None),
+            size=(250, 60),
+            background_color=self.rgba('#3498db'),
             color=self.rgba('#ffffff'),
             on_release=self.save_character
         )
         
-        back_btn = Button(
-            text='⏪ Volver',
-            font_size=24,
-            background_color=self.rgba('#f4978e'),
-            color=self.rgba('#ffffff'),
-            on_release=lambda x: self.app.switch_screen('menu')
-        )
+        save_container = AnchorLayout(size_hint_y=None, height=80)
+        save_container.add_widget(save_btn)
+        main_layout.add_widget(save_container)
         
-        button_layout.add_widget(save_btn)
-        button_layout.add_widget(back_btn)
-        main_layout.add_widget(button_layout)
-        
-        self.add_widget(main_layout)
+        scroll.add_widget(main_layout)
+        self.add_widget(scroll)
     
-    def create_card(self):
-        """Create a card-style container with rounded background"""
-        card = BoxLayout(orientation='vertical', padding=20, spacing=10, size_hint_y=None)
+    def create_card(self, bg_color, alpha=0.9):
+        """Create a modern card container"""
+        card = BoxLayout(orientation='vertical', size_hint_y=None)
         card.bind(minimum_height=card.setter('height'))
         
         with card.canvas.before:
-            Color(rgba=get_color_from_hex('#ffffffcc'))
-            self.bg_rect = RoundedRectangle(radius=[15], pos=card.pos, size=card.size)
+            Color(rgba=get_color_from_hex(bg_color) + [alpha])
+            card.bg_rect = RoundedRectangle(radius=[20], pos=card.pos, size=card.size)
         
-        def update_bg_rect(*args):
-            self.bg_rect.pos = card.pos
-            self.bg_rect.size = card.size
-        
-        card.bind(pos=update_bg_rect, size=update_bg_rect)
+        card.bind(pos=lambda *args: setattr(card.bg_rect, 'pos', card.pos),
+                 size=lambda *args: setattr(card.bg_rect, 'size', card.size))
         return card
     
-    @staticmethod
-    def rgba(hexstr):
-        """Convert hex color to RGBA"""
+    def create_ability_card(self, ability, modifier, color):
+        """Create an individual ability card"""
+        card = BoxLayout(orientation='vertical', spacing=5, size_hint_y=None, height=100, padding=10)
+        
+        with card.canvas.before:
+            Color(rgba=get_color_from_hex(color) + [0.2])
+            card.bg_rect = RoundedRectangle(radius=[15], pos=card.pos, size=card.size)
+            Color(rgba=get_color_from_hex(color))
+            card.border_rect = Line(rounded_rectangle=(card.pos[0], card.pos[1], card.size[0], card.size[1], 15), width=2)
+        
+        card.bind(pos=self.update_ability_card_graphics, size=self.update_ability_card_graphics)
+        
+        # Ability name
+        ability_label = Label(
+            text=ability,
+            font_size=18,
+            color=get_color_from_hex('#ecf0f1'),
+            size_hint_y=None,
+            height=30
+        )
+        card.add_widget(ability_label)
+        
+        # Modifier input
+        modifier_input = TextInput(
+            text=str(modifier),
+            font_size=24,
+            multiline=False,
+            background_color=self.rgba(color),
+            foreground_color=self.rgba('#ffffff'),
+            size_hint_y=None,
+            height=40,
+            halign='center'
+        )
+        
+        self.ability_inputs[ability] = modifier_input
+        card.add_widget(modifier_input)
+        
+        return card
+    
+    def update_ability_card_graphics(self, card, *args):
+        """Update ability card graphics on position/size change"""
+        if hasattr(card, 'bg_rect'):
+            card.bg_rect.pos = card.pos
+            card.bg_rect.size = card.size
+        if hasattr(card, 'border_rect'):
+            card.border_rect.rounded_rectangle = (card.pos[0], card.pos[1], card.size[0], card.size[1], 15)
+    
+    def update_bg(self, *args):
+        self.bg_rect.pos = self.pos
+        self.bg_rect.size = self.size
+    
+    def rgba(self, hexstr):
         c = get_color_from_hex(hexstr)
         return c if len(c) == 4 else c + [1.0] * (4 - len(c))
     
     def save_character(self, instance):
-        """Save character data"""
+        """Save character changes"""
         try:
-            # Here you could save to a file or database
-            # For now, just show a confirmation
-            from kivy.uix.popup import Popup
-            popup_content = BoxLayout(orientation='vertical', spacing=10, padding=20)
-            popup_content.add_widget(Label(
-                text='¡Personaje guardado!', 
-                font_size=24, 
-                color=self.rgba('#1b4965')
-            ))
-            close_btn = Button(
-                text="Cerrar", 
-                size_hint=(1, 0.5), 
-                font_size=22, 
-                background_color=self.rgba('#62b6cb'), 
-                color=self.rgba('#ffffff')
-            )
-            popup_content.add_widget(close_btn)
-            popup = Popup(
-                title="Guardado", 
-                content=popup_content, 
-                size_hint=(None, None), 
-                size=(300, 200), 
-                auto_dismiss=False
-            )
-            close_btn.bind(on_release=popup.dismiss)
-            popup.open()
-        except Exception as e:
-            print(f"Error saving character: {e}")
+            # Update character data
+            self.app.character['name'] = self.name_input.text
+            self.app.character['class'] = self.class_input.text
+            self.app.character['level'] = int(self.level_input.text)
+            self.app.character['hp_current'] = int(self.hp_current_input.text)
+            self.app.character['hp_max'] = int(self.hp_max_input.text)
+            self.app.character['armor'] = int(self.armor_input.text)
+            
+            # Update abilities
+            for ability, input_widget in self.ability_inputs.items():
+                self.app.character['abilities'][ability] = int(input_widget.text)
+            
+            # Visual feedback
+            instance.text = '✅ ¡Guardado!'
+            instance.background_color = self.rgba('#27ae60')
+            
+            # Reset button after 2 seconds
+            Clock.schedule_once(lambda dt: self.reset_save_button(instance), 2)
+            
+        except ValueError:
+            # Error feedback
+            instance.text = '❌ Error'
+            instance.background_color = self.rgba('#e74c3c')
+            Clock.schedule_once(lambda dt: self.reset_save_button(instance), 2)
+    
+    def reset_save_button(self, button):
+        """Reset save button to original state"""
+        button.text = '💾 Guardar Cambios'
+        button.background_color = self.rgba('#3498db')
+
+from kivy.clock import Clock

@@ -1,6 +1,6 @@
 # screens/menu.py
 """
-MenuScreen: Main menu with navigation buttons.
+MenuScreen: Beautiful, modern main menu with Material Design elements
 """
 
 from kivy.uix.screenmanager import Screen
@@ -8,48 +8,201 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.widget import Widget
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
+from kivy.graphics import Color, RoundedRectangle, Ellipse
+from kivy.animation import Animation
+from kivy.clock import Clock
+
+class ModernButton(Button):
+    def __init__(self, bg_color='#3498db', hover_color='#2980b9', **kwargs):
+        super().__init__(**kwargs)
+        self.bg_color = get_color_from_hex(bg_color)
+        self.hover_color = get_color_from_hex(hover_color)
+        self.normal_color = self.bg_color[:]
+        self.background_color = (0, 0, 0, 0)  # Transparent
+        
+        with self.canvas.before:
+            Color(rgba=self.bg_color)
+            self.bg_rect = RoundedRectangle(radius=[15], pos=self.pos, size=self.size)
+        
+        self.bind(pos=self.update_bg, size=self.update_bg)
+        self.bind(on_press=self.on_button_press)
+        self.bind(on_release=self.on_button_release)
+    
+    def update_bg(self, *args):
+        self.bg_rect.pos = self.pos
+        self.bg_rect.size = self.size
+    
+    def on_button_press(self, *args):
+        Animation(bg_color=self.hover_color, duration=0.1).start(self)
+        Animation(size=(self.size[0] * 0.95, self.size[1] * 0.95), duration=0.1).start(self)
+    
+    def on_button_release(self, *args):
+        Animation(bg_color=self.normal_color, duration=0.1).start(self)
+        Animation(size=(self.size[0] / 0.95, self.size[1] / 0.95), duration=0.1).start(self)
 
 class MenuScreen(Screen):
     def __init__(self, app, **kwargs):
         super().__init__(**kwargs)
         self.app = app
-        Window.clearcolor = get_color_from_hex('#eaf6fb')
-        # Card-style container
-        card = BoxLayout(orientation='vertical', spacing=24, padding=[30, 30, 30, 30], size_hint=(None, None), size=(500, 420), pos_hint={'center_x': 0.5, 'center_y': 0.5})
-        from kivy.graphics import Color, RoundedRectangle
+        
+        # Create gradient background
+        with self.canvas.before:
+            # Top gradient color
+            Color(rgba=get_color_from_hex('#667eea'))
+            self.bg_gradient_top = RoundedRectangle(pos=self.pos, size=(self.size[0], self.size[1] * 0.6))
+            
+            # Bottom gradient color 
+            Color(rgba=get_color_from_hex('#764ba2'))
+            self.bg_gradient_bottom = RoundedRectangle(pos=(self.pos[0], self.pos[1] + self.size[1] * 0.4), 
+                                                     size=(self.size[0], self.size[1] * 0.6))
+        
+        self.bind(pos=self.update_bg, size=self.update_bg)
+        
+        # Main container
+        main_layout = BoxLayout(orientation='vertical', padding=[40, 60, 40, 40], spacing=30)
+        
+        # Header section
+        header = BoxLayout(orientation='vertical', size_hint_y=0.3, spacing=20)
+        
+        # App title with shadow effect
+        title_container = AnchorLayout()
+        title = Label(
+            text='[b]DAGGERHEART[/b]\n[color=#f1c40f]⚔️ TRACKER ⚔️[/color]',
+            markup=True,
+            font_size=56,
+            color=get_color_from_hex('#ffffff'),
+            halign='center',
+            text_size=(None, None)
+        )
+        title_container.add_widget(title)
+        header.add_widget(title_container)
+        
+        # Subtitle
+        subtitle = Label(
+            text='Tu compañero de aventuras definitivo',
+            font_size=24,
+            color=get_color_from_hex('#ecf0f1'),
+            halign='center'
+        )
+        header.add_widget(subtitle)
+        
+        main_layout.add_widget(header)
+        
+        # Navigation cards
+        nav_container = BoxLayout(orientation='vertical', size_hint_y=0.6, spacing=20)
+        
+        # Create navigation buttons with icons and descriptions
+        nav_buttons = [
+            {
+                'title': '🎲 Tiradas de Dados',
+                'subtitle': 'Realiza tiradas con ventajas y modificadores',
+                'color': '#e74c3c',
+                'screen': 'rolls'
+            },
+            {
+                'title': '⚔️ Ficha de Personaje', 
+                'subtitle': 'Gestiona stats, vida y habilidades',
+                'color': '#27ae60',
+                'screen': 'characteristics'
+            },
+            {
+                'title': '⚙️ Configuración',
+                'subtitle': 'Personaliza tu experiencia',
+                'color': '#8e44ad',
+                'screen': 'settings'
+            }
+        ]
+        
+        for btn_data in nav_buttons:
+            nav_card = self.create_nav_card(
+                btn_data['title'],
+                btn_data['subtitle'], 
+                btn_data['color'],
+                lambda x, screen=btn_data['screen']: self.app.switch_screen(screen, 'left')
+            )
+            nav_container.add_widget(nav_card)
+        
+        main_layout.add_widget(nav_container)
+        
+        # Footer with exit button
+        footer = AnchorLayout(size_hint_y=0.1)
+        exit_btn = ModernButton(
+            text='💀 Salir del Juego',
+            font_size=18,
+            size_hint=(None, None),
+            size=(200, 50),
+            bg_color='#c0392b',
+            hover_color='#a93226',
+            color=get_color_from_hex('#ffffff'),
+            on_release=lambda x: self.app.stop()
+        )
+        footer.add_widget(exit_btn)
+        main_layout.add_widget(footer)
+        
+        self.add_widget(main_layout)
+    
+    def create_nav_card(self, title, subtitle, color, callback):
+        """Create a modern navigation card"""
+        card = BoxLayout(orientation='horizontal', size_hint_y=None, height=100, spacing=20)
+        
+        # Card background
         with card.canvas.before:
-            Color(rgba=get_color_from_hex('#ffffffcc'))
-            self.bg_rect = RoundedRectangle(radius=[30], pos=card.pos, size=card.size)
-        def update_bg_rect(*args):
-            self.bg_rect.pos = card.pos
-            self.bg_rect.size = card.size
-        card.bind(pos=update_bg_rect, size=update_bg_rect)
-        # Title
-        title = Label(text='[b]Daggerheart Tracker[/b]', markup=True, font_size=40, color=get_color_from_hex('#1b4965'))
-        card.add_widget(title)
-        # Buttons
-        def rgba(hexstr):
-            c = get_color_from_hex(hexstr)
-            return c if len(c) == 4 else c + [1.0] * (4 - len(c))
-        btn_style = {
-            'font_size': 32,
-            'background_color': rgba('#62b6cb'),
-            'color': rgba('#ffffff'),
-            'size_hint_y': None,
-            'height': 80
-        }
-        card.add_widget(Button(text='🎲 Tiradas', on_release=lambda x: app.switch_screen('rolls'), **btn_style))
-        card.add_widget(Button(text='� Ficha', on_release=lambda x: app.switch_screen('characteristics'), **btn_style))
-        card.add_widget(Button(text='�🟢 GPIO Monitor', on_release=lambda x: app.switch_screen('gpio'), **btn_style))
-        card.add_widget(Button(text='⚙️ Ajustes', on_release=lambda x: app.switch_screen('settings'), **btn_style))
-        # Exit button at the bottom
-        exit_anchor = AnchorLayout(anchor_x='center', anchor_y='bottom')
-        exit_btn = Button(text='⏻ Salir', font_size=28, size_hint=(None, None), size=(220, 60), background_color=rgba('#f4978e'), color=rgba('#ffffff'), on_release=lambda x: app.stop())
-        exit_anchor.add_widget(exit_btn)
-        card.add_widget(exit_anchor)
-        # Center the card
-        root = AnchorLayout()
-        root.add_widget(card)
-        self.add_widget(root)
+            Color(rgba=get_color_from_hex('#ffffff') + [0.95])
+            self.card_bg = RoundedRectangle(radius=[20], pos=card.pos, size=card.size)
+        
+        card.bind(pos=lambda *args: setattr(self.card_bg, 'pos', card.pos),
+                 size=lambda *args: setattr(self.card_bg, 'size', card.size))
+        
+        # Icon section
+        icon_section = AnchorLayout(size_hint_x=0.2)
+        with icon_section.canvas.before:
+            Color(rgba=get_color_from_hex(color))
+            self.icon_bg = RoundedRectangle(radius=[15], pos=(0, 0), size=(60, 60))
+        
+        # Content section
+        content = BoxLayout(orientation='vertical', size_hint_x=0.8, padding=[10, 10])
+        
+        title_label = Label(
+            text=title,
+            font_size=22,
+            color=get_color_from_hex('#2c3e50'),
+            halign='left',
+            text_size=(None, None),
+            markup=True
+        )
+        
+        subtitle_label = Label(
+            text=subtitle,
+            font_size=16,
+            color=get_color_from_hex('#7f8c8d'),
+            halign='left',
+            text_size=(None, None)
+        )
+        
+        content.add_widget(title_label)
+        content.add_widget(subtitle_label)
+        
+        card.add_widget(icon_section)
+        card.add_widget(content)
+        
+        # Make the whole card clickable
+        button_overlay = Button(
+            background_color=(0, 0, 0, 0),
+            on_release=callback
+        )
+        
+        card_container = AnchorLayout()
+        card_container.add_widget(card)
+        card_container.add_widget(button_overlay)
+        
+        return card_container
+    
+    def update_bg(self, *args):
+        self.bg_gradient_top.pos = self.pos
+        self.bg_gradient_top.size = (self.size[0], self.size[1] * 0.6)
+        self.bg_gradient_bottom.pos = (self.pos[0], self.pos[1] + self.size[1] * 0.4)
+        self.bg_gradient_bottom.size = (self.size[0], self.size[1] * 0.6)

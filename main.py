@@ -16,9 +16,11 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.core.window import Window
 from utils.settings import SettingsManager
+
 from screens.menu import MenuScreen
 from screens.settings import SettingsScreen
 from screens.gpio import GPIOScreen
+from screens.rolls import RollsScreen
 
 # Set window size for testing (remove on real Pi)
 Window.size = (800, 480)
@@ -30,6 +32,7 @@ class MainApp(App):
         self.sm.add_widget(MenuScreen(name='menu', app=self))
         self.sm.add_widget(SettingsScreen(name='settings', app=self))
         self.sm.add_widget(GPIOScreen(name='gpio', app=self))
+        self.sm.add_widget(RollsScreen(name='rolls', app=self))
         return self.sm
 
     def switch_screen(self, screen_name):

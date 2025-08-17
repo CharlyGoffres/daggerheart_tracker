@@ -28,9 +28,9 @@ from screens.combat import CombatScreen
 from screens.ability_checks import AbilityChecksScreen
 from screens.combat import CombatScreen
 
-# Set responsive window size
-Window.minimum_width = 800
-Window.minimum_height = 600
+# Set responsive window size with better minimum constraints
+Window.minimum_width = 900
+Window.minimum_height = 650
 Window.size = (1024, 768)
 
 class MainApp(App):

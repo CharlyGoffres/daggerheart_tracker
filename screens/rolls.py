@@ -160,8 +160,8 @@ class RollsScreen(Screen):
         )
         abilities_layout.add_widget(abilities_title)
         
-        # Create responsive grid
-        grid = GridLayout(cols=2, spacing=15, size_hint_y=None)
+        # Create responsive grid with better spacing
+        grid = GridLayout(cols=2, spacing=20, size_hint_y=None, padding=[10, 5])
         grid.bind(minimum_height=grid.setter('height'))
         
         self.abilities = ["Fuerza", "Destreza", "Carisma", "Constitución", "Sabiduría", "Inteligencia"]
@@ -214,11 +214,11 @@ class RollsScreen(Screen):
         """Create a modern ability button with hover effects"""
         btn = Button(
             text=text,
-            font_size=20,
+            font_size=18,
             background_color=(0, 0, 0, 0),
             color=RollsScreen.rgba('#ffffff'),
             size_hint_y=None,
-            height=80,
+            height=90,  # Increased height for better spacing
             halign='center',
             valign='middle',
             on_release=callback

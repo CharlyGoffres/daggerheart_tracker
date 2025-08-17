@@ -118,8 +118,8 @@ class AdaptiveBottomMenu(BoxLayout):
         self.orientation = 'horizontal'
         self.size_hint_y = None
         self.height = 120
-        self.spacing = 8
-        self.padding = [15, 15, 15, 15]
+        self.spacing = 12  # Increased spacing to prevent overlapping
+        self.padding = [20, 15, 20, 15]  # Increased horizontal padding
         
         # Initialize background rectangle
         self.bg_rect = None
@@ -140,7 +140,7 @@ class AdaptiveBottomMenu(BoxLayout):
                 text=config['text'],
                 screen_name=screen_name,
                 app=self.app,
-                size_hint_x=0.2
+                size_hint_x=0.19  # Optimized for 5 buttons
             )
             self.buttons[screen_name] = btn
             self.add_widget(btn)

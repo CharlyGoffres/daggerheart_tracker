@@ -196,8 +196,8 @@ class CharacteristicsScreen(Screen):
         )
         abilities_layout.add_widget(abilities_title)
         
-        # Abilities grid
-        abilities_grid = GridLayout(cols=2, spacing=15, size_hint_y=None)
+        # Abilities grid with better spacing
+        abilities_grid = GridLayout(cols=2, spacing=20, size_hint_y=None, padding=[10, 5])
         abilities_grid.bind(minimum_height=abilities_grid.setter('height'))
         
         self.ability_inputs = {}
@@ -315,7 +315,7 @@ class CharacteristicsScreen(Screen):
     
     def create_ability_card(self, ability, modifier, color):
         """Create an individual ability card"""
-        card = BoxLayout(orientation='vertical', spacing=5, size_hint_y=None, height=100, padding=10)
+        card = BoxLayout(orientation='vertical', spacing=8, size_hint_y=None, height=110, padding=12)
         
         with card.canvas.before:
             Color(rgba=get_color_from_hex(color) + [0.2])

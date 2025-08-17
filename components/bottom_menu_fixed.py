@@ -100,8 +100,8 @@ class FixedBottomMenu(BoxLayout):
         self.orientation = 'horizontal'
         self.size_hint_y = None
         self.height = 120
-        self.spacing = 8
-        self.padding = [15, 15, 15, 15]
+        self.spacing = 8  # Reduced spacing to fit better
+        self.padding = [15, 15, 15, 15]  # Standard padding
         
         # Initialize background rectangle
         self.bg_rect = None
@@ -127,7 +127,7 @@ class FixedBottomMenu(BoxLayout):
                 text=label,
                 screen_name=screen_name,
                 app=self.app,
-                size_hint_x=0.2
+                size_hint_x=0.19  # Optimized for 5 buttons with spacing
             )
             self.buttons[screen_name] = btn
             self.add_widget(btn)

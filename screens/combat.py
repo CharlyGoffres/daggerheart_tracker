@@ -75,7 +75,7 @@ class CombatScreen(Screen):
             text=str(self.app.character['hp_current']),
             font_size=28,
             color=get_color_from_hex('#e74c3c'),
-            size_hint_x=0.3
+            size_hint_x=0.25
         )
         
         hp_separator = Label(
@@ -89,11 +89,11 @@ class CombatScreen(Screen):
             text=str(self.app.character['hp_max']),
             font_size=24,
             color=get_color_from_hex('#bdc3c7'),
-            size_hint_x=0.3
+            size_hint_x=0.25
         )
         
-        # HP modification buttons
-        hp_buttons = BoxLayout(orientation='horizontal', spacing=5, size_hint_x=0.3)
+        # HP modification buttons with better spacing
+        hp_buttons = BoxLayout(orientation='horizontal', spacing=10, size_hint_x=0.4)
         
         heal_btn = Button(
             text='+',
@@ -139,11 +139,11 @@ class CombatScreen(Screen):
             text=str(self.app.character.get('hope', 0)),
             font_size=28,
             color=get_color_from_hex('#f1c40f'),
-            size_hint_x=0.7
+            size_hint_x=0.6
         )
         
-        # Hope modification buttons
-        hope_buttons = BoxLayout(orientation='horizontal', spacing=5, size_hint_x=0.3)
+        # Hope modification buttons with better spacing
+        hope_buttons = BoxLayout(orientation='horizontal', spacing=10, size_hint_x=0.4)
         
         hope_add_btn = Button(
             text='+',

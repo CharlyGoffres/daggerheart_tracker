@@ -41,21 +41,22 @@ class RollsScreen(Screen):
         super().__init__(**kwargs)
         self.app = app
         
-        # Create gradient background
-        with self.canvas.before:
-            Color(rgba=get_color_from_hex('#2c3e50'))
-            self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size)
+        # Create beautiful gradient background like the menu
+        LayoutUtils.create_gradient_background(self, '#ff9a9e', '#fecfef')
         
-        self.bind(pos=self.update_bg, size=self.update_bg)
-
-        # Create scrollable content with proper layout
+        # Create main container with standardized layout
         scroll, main_layout = LayoutUtils.create_scrollable_content()
+        main_container, self.bottom_menu = LayoutUtils.create_main_container(
+            self.app, scroll, FixedBottomMenu
+        )
+        
+        self.add_widget(main_container)
         
         # Create centered header
         header, title = LayoutUtils.create_centered_header('[b]🎲 TIRADAS DE DADOS[/b]')
         main_layout.add_widget(header)
 
-        # Configuration card
+        # Configuration card with enhanced styling
         config_card = self.create_card('#34495e')
         config_layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
         
@@ -177,15 +178,8 @@ class RollsScreen(Screen):
         abilities_card.add_widget(abilities_layout)
         main_layout.add_widget(abilities_card)
 
-        # Create main container with standardized layout
-        main_container, self.bottom_menu = LayoutUtils.create_main_container(
-            self.app, scroll, FixedBottomMenu
-        )
-        
         # Bind responsive updates
         LayoutUtils.bind_responsive_updates(main_layout, title)
-        
-        self.add_widget(main_container)
     
     def on_enter(self):
         """Called when entering the screen"""
@@ -229,10 +223,6 @@ class RollsScreen(Screen):
         btn.bind(size=btn.setter('text_size'))
         
         return btn
-    
-    def update_bg(self, *args):
-        self.bg_rect.pos = self.pos
-        self.bg_rect.size = self.size
 
     def roll_ability(self, instance):
         print(f"Rolling ability: {instance.text}")  # Debug output

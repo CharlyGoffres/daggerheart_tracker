@@ -26,15 +26,16 @@ class CharacteristicsScreen(Screen):
         super().__init__(**kwargs)
         self.app = app
         
-        # Create gradient background
-        with self.canvas.before:
-            Color(rgba=get_color_from_hex('#1a252f'))
-            self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size)
+        # Create beautiful gradient background like the menu
+        LayoutUtils.create_gradient_background(self, '#a8edea', '#fed6e3')
         
-        self.bind(pos=self.update_bg, size=self.update_bg)
-        
-        # Create scrollable content with proper layout
+        # Create main container with standardized layout
         scroll, main_layout = LayoutUtils.create_scrollable_content()
+        main_container, self.bottom_menu = LayoutUtils.create_main_container(
+            self.app, scroll, FixedBottomMenu
+        )
+        
+        self.add_widget(main_container)
         
         # Create centered header
         header, title = LayoutUtils.create_centered_header('[b]⚔️ FICHA DE PERSONAJE[/b]')
@@ -271,15 +272,8 @@ class CharacteristicsScreen(Screen):
         save_container.add_widget(save_btn)
         main_layout.add_widget(save_container)
         
-        # Create main container with standardized layout
-        main_container, self.bottom_menu = LayoutUtils.create_main_container(
-            self.app, scroll, FixedBottomMenu
-        )
-        
         # Bind responsive updates
         LayoutUtils.bind_responsive_updates(main_layout, title)
-        
-        self.add_widget(main_container)
     
     def on_window_resize(self, *args):
         """Called when window is resized"""
@@ -353,10 +347,6 @@ class CharacteristicsScreen(Screen):
         card.add_widget(modifier_input)
         
         return card
-    
-    def update_bg(self, *args):
-        self.bg_rect.pos = self.pos
-        self.bg_rect.size = self.size
     
     def rgba(self, hexstr):
         c = get_color_from_hex(hexstr)

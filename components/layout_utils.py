@@ -7,6 +7,8 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
+from kivy.graphics import Color, RoundedRectangle
+from kivy.utils import get_color_from_hex
 from components.responsive_utils import ResponsiveUtils
 
 class LayoutUtils:
@@ -113,3 +115,25 @@ class LayoutUtils:
         
         Window.bind(on_resize=on_resize)
         return on_resize
+    
+    @staticmethod
+    def create_gradient_background(screen, top_color='#667eea', bottom_color='#764ba2'):
+        """Create a beautiful gradient background for screens"""
+        with screen.canvas.before:
+            # Top gradient color
+            Color(rgba=get_color_from_hex(top_color))
+            screen.bg_gradient_top = RoundedRectangle(pos=screen.pos, size=(screen.size[0], screen.size[1] * 0.6))
+            
+            # Bottom gradient color 
+            Color(rgba=get_color_from_hex(bottom_color))
+            screen.bg_gradient_bottom = RoundedRectangle(pos=(screen.pos[0], screen.pos[1] + screen.size[1] * 0.4), 
+                                                       size=(screen.size[0], screen.size[1] * 0.6))
+        
+        def update_gradient_bg(*args):
+            screen.bg_gradient_top.pos = screen.pos
+            screen.bg_gradient_top.size = (screen.size[0], screen.size[1] * 0.6)
+            screen.bg_gradient_bottom.pos = (screen.pos[0], screen.pos[1] + screen.size[1] * 0.4)
+            screen.bg_gradient_bottom.size = (screen.size[0], screen.size[1] * 0.6)
+        
+        screen.bind(pos=update_gradient_bg, size=update_gradient_bg)
+        return update_gradient_bg

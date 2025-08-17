@@ -27,15 +27,16 @@ class CombatScreen(Screen):
         super().__init__(**kwargs)
         self.app = app
         
-        # Create gradient background
-        with self.canvas.before:
-            Color(rgba=get_color_from_hex('#2c1810'))
-            self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size)
+        # Create beautiful gradient background like the menu
+        LayoutUtils.create_gradient_background(self, '#ff6b6b', '#ffa726')
         
-        self.bind(pos=self.update_bg, size=self.update_bg)
-        
-        # Create scrollable content with proper layout
+        # Create main container with standardized layout
         scroll, content_area = LayoutUtils.create_scrollable_content()
+        main_container, self.bottom_menu = LayoutUtils.create_main_container(
+            self.app, scroll, FixedBottomMenu
+        )
+        
+        self.add_widget(main_container)
         
         # Create centered header
         header, title = LayoutUtils.create_centered_header('[b]⚡ COMBATE[/b]')
@@ -316,25 +317,14 @@ class CombatScreen(Screen):
         self.results_card.add_widget(self.results_layout)
         content_area.add_widget(self.results_card)
         
-        # Create main container with standardized layout
-        main_container, self.bottom_menu = LayoutUtils.create_main_container(
-            self.app, scroll, FixedBottomMenu
-        )
-        
         # Bind responsive updates
         LayoutUtils.bind_responsive_updates(content_area, title)
-        
-        self.add_widget(main_container)
     
     def on_enter(self):
         """Called when entering the screen"""
         super().on_enter()
         self.bottom_menu.set_active_button('combat')
         self.update_status_display()
-    
-    def update_bg(self, *args):
-        self.bg_rect.pos = self.pos
-        self.bg_rect.size = self.size
     
     @staticmethod
     def rgba(hexstr):

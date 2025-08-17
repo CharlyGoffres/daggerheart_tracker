@@ -77,7 +77,13 @@ class AdaptiveBottomMenuButton(Button):
         self.color = get_color_from_hex('#ecf0f1')
         self.halign = 'center'
         self.valign = 'middle'
-        self.bind(size=self.setter('text_size'))
+        # Set initial text_size
+        self.text_size = (None, None)
+        self.bind(size=self._update_text_size)
+    
+    def _update_text_size(self, *args):
+        """Update text size when button size changes"""
+        self.text_size = self.size
     
     def update_bg(self, *args):
         """Update background rectangle"""
@@ -85,14 +91,15 @@ class AdaptiveBottomMenuButton(Button):
         with self.canvas.before:
             Color(rgba=get_color_from_hex('#34495e'))
             self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[10])
-        
-        # Update text size for text-based layout
-        if not PlatformConfig.use_emoji_buttons():
-            self.text_size = self.size
     
     def on_button_press(self, *args):
         """Handle button press"""
-        self.app.switch_screen(self.screen_name)
+        print(f"Button pressed: {self.screen_name}")  # Debug output
+        try:
+            self.app.switch_screen(self.screen_name)
+            print(f"Successfully switched to: {self.screen_name}")
+        except Exception as e:
+            print(f"Error switching screen: {e}")
     
     def set_active(self, active=True):
         """Set button as active/inactive"""

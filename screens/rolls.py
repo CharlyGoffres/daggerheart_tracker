@@ -17,7 +17,7 @@ from kivy.graphics import Color, RoundedRectangle, Line
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.animation import Animation
-from components.bottom_menu_adaptive import AdaptiveBottomMenu
+from components.bottom_menu_fixed import FixedBottomMenu
 import random
 
 class RollsScreen(Screen):
@@ -186,7 +186,7 @@ class RollsScreen(Screen):
         main_container.add_widget(scroll)
         
         # Add bottom menu
-        self.bottom_menu = AdaptiveBottomMenu(self.app)
+        self.bottom_menu = FixedBottomMenu(self.app)
         main_container.add_widget(self.bottom_menu)
         
         self.add_widget(main_container)
@@ -221,9 +221,11 @@ class RollsScreen(Screen):
             height=80,
             halign='center',
             valign='middle',
-            text_size=(None, None),
             on_release=callback
         )
+        
+        # Ensure text wraps properly
+        btn.bind(size=btn.setter('text_size'))
         
         with btn.canvas.before:
             Color(rgba=get_color_from_hex(color))
@@ -242,11 +244,14 @@ class RollsScreen(Screen):
         self.bg_rect.size = self.size
 
     def roll_ability(self, instance):
+        print(f"Rolling ability: {instance.text}")  # Debug output
         # Extract ability name from button text
         ability_text = instance.text.split('\n')[0]  # Get first line before modifier
         mod = self.app.character['abilities'].get(ability_text, 0)
         roll_type = self.roll_type.text
         mod_text = self.modifier.text
+
+        print(f"Ability: {ability_text}, Modifier: {mod}, Roll type: {roll_type}")  # Debug output
 
         # Determine number of dice and keepers for advantage/disadvantage
         if roll_type == 'Normal':

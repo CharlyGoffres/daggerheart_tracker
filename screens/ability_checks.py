@@ -16,7 +16,7 @@ from kivy.graphics import Color, RoundedRectangle, Line
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 from kivy.animation import Animation
-from components.bottom_menu_adaptive import AdaptiveBottomMenu
+from components.bottom_menu_fixed import FixedBottomMenu
 import random
 
 class AbilityChecksScreen(Screen):
@@ -173,7 +173,7 @@ class AbilityChecksScreen(Screen):
         main_container.add_widget(content_area)
         
         # Add bottom menu
-        self.bottom_menu = AdaptiveBottomMenu(self.app)
+        self.bottom_menu = FixedBottomMenu(self.app)
         main_container.add_widget(self.bottom_menu)
         
         self.add_widget(main_container)

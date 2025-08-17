@@ -35,13 +35,32 @@ class SettingsScreen(Screen):
         self.status_label = Label(text=f"Ajuste de ejemplo: {self.app.settings_manager.get('example_setting')}", font_size=24, color=get_color_from_hex('#1b4965'))
         card.add_widget(self.status_label)
         # Toggle button
-        self.toggle_btn = Button(text='Cambiar ajuste de ejemplo', font_size=28, background_color=get_color_from_hex('#62b6cb'), color=get_color_from_hex('#fff'), size_hint_y=None, height=70, on_release=self.toggle_setting)
+        def rgba(hexstr):
+            c = get_color_from_hex(hexstr)
+            return c if len(c) == 4 else c + [1.0] * (4 - len(c))
+        self.toggle_btn = Button(
+            text='Cambiar ajuste de ejemplo',
+            font_size=28,
+            background_color=rgba('#62b6cb'),
+            color=rgba('#ffffff'),
+            size_hint_y=None,
+            height=70,
+            on_release=self.toggle_setting
+        )
         card.add_widget(self.toggle_btn)
         # Spacer
         card.add_widget(Widget(size_hint_y=0.2))
         # Back button
         back_anchor = AnchorLayout(anchor_x='center', anchor_y='bottom')
-        back_btn = Button(text='⏪ Volver al Menú', font_size=26, size_hint=(None, None), size=(320, 60), background_color=get_color_from_hex('#f4978e'), color=get_color_from_hex('#fff'), on_release=lambda x: app.switch_screen('menu'))
+        back_btn = Button(
+            text='⏪ Volver al Menú',
+            font_size=26,
+            size_hint=(None, None),
+            size=(320, 60),
+            background_color=rgba('#f4978e'),
+            color=rgba('#ffffff'),
+            on_release=lambda x: self.app.switch_screen('menu')
+        )
         back_anchor.add_widget(back_btn)
         card.add_widget(back_anchor)
         # Center the card

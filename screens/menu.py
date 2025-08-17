@@ -30,10 +30,13 @@ class MenuScreen(Screen):
         title = Label(text='[b]Daggerheart Tracker[/b]', markup=True, font_size=40, color=get_color_from_hex('#1b4965'))
         card.add_widget(title)
         # Buttons
+        def rgba(hexstr):
+            c = get_color_from_hex(hexstr)
+            return c if len(c) == 4 else c + [1.0] * (4 - len(c))
         btn_style = {
             'font_size': 32,
-            'background_color': get_color_from_hex('#62b6cb'),
-            'color': get_color_from_hex('#fff'),
+            'background_color': rgba('#62b6cb'),
+            'color': rgba('#ffffff'),
             'size_hint_y': None,
             'height': 80
         }
@@ -42,7 +45,7 @@ class MenuScreen(Screen):
         card.add_widget(Button(text='⚙️ Ajustes', on_release=lambda x: app.switch_screen('settings'), **btn_style))
         # Exit button at the bottom
         exit_anchor = AnchorLayout(anchor_x='center', anchor_y='bottom')
-        exit_btn = Button(text='⏻ Salir', font_size=28, size_hint=(None, None), size=(220, 60), background_color=get_color_from_hex('#f4978e'), color=get_color_from_hex('#fff'), on_release=lambda x: app.stop())
+        exit_btn = Button(text='⏻ Salir', font_size=28, size_hint=(None, None), size=(220, 60), background_color=rgba('#f4978e'), color=rgba('#ffffff'), on_release=lambda x: app.stop())
         exit_anchor.add_widget(exit_btn)
         card.add_widget(exit_anchor)
         # Center the card
